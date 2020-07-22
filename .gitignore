@@ -4,7 +4,7 @@
 
 Deprecated/*
 deprecated/*
-.ipynb*
+.ipynb_checkpoints*
 
 # Session Data files
 .RData
