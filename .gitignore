@@ -6,7 +6,9 @@ Deprecated/*
 deprecated/*
 .ipynb_checkpoints/*
 *.Rproj
-data/raw/*
+Data/Raw/*
+Data/Mapping_Files/input_test.csv
+Simulations_Scripts/make_joblist_*.py
 data_old/*
 
 # Session Data files
