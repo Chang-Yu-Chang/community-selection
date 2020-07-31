@@ -1,0 +1,6 @@
+Parameter,Description and units,Value
+d,Dilution factor in the batch culture,0.001
+t,Incubation time,1
+n_wells,Number of wells; number of metacommunities,96
+T_tot,Number of total transfers (generations),40
+T_selc,Number of selection transfers (generations),20

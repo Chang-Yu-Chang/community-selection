@@ -2,6 +2,8 @@
 
 Scripts for the manuscripts entitled "Top-down engineering of complex communities by directed evolution"
 
+Preprint [[link](https://www.biorxiv.org/content/10.1101/2020.07.24.214775v2)]
+
 Contact: chang-yu.chang@yale.edu
 
 The raw data from simulation are upon request, but one would like to reproduce the result described in the manuscripts should be able to reproduce the same simulation using the three csv files in `data/`

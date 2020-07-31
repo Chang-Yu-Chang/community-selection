@@ -1,0 +1,11 @@
+Parameter,Description and units,Value
+Ni,population density of species i (individuals/volume),
+Rα,Concentration of resource α (mass/volume),
+Ciα,Uptake rate per unit concentration of resource α by species i (volume/time),
+Dαβ,Fraction of byproducts from resource β converted to α (unitless),
+gi,Conversion factor from energy uptake to growth rate (1/energy),1
+wα,Energy content of resource α (energy/mass),1
+lα,Leakage fraction for resource α (unitless),0
+mi,Minimal energy uptake for maintenance of species i (energy/time),0
+n,Hill coefficient for functional response (unitless),2
+σmax,Maximum input flux (mass/time),1
