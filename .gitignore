@@ -8,8 +8,11 @@ deprecated/*
 *.Rproj
 Data/Raw/*
 Data/Mapping_Files/input_test.csv
-Simulations_Scripts/make_joblist_*.py
+Plotting_Scripts/Fig_test.R
+Simulations_Scripts/make_joblist*
+Simulations_Scripts/make_mapping_files.R
 data_old/*
+Plots/Cartoons/*pdf
 
 # Session Data files
 .RData
