@@ -13,7 +13,7 @@ Contact: chang-yu.chang@yale.edu and jean.vila@yale.edu
 
 `Data/Tables/` contains table-related data used to make selection matrices in TableS1, or auto-generated from the Rscripts to make the TableS2-5.
 
-`Data/Raw/` is empty upon request, because the raw data is too huge to be saved here. Or one can run the simulation using the scripts described in the next section and save all data in this folder. 
+`Data/Raw/` is available upon request, because the raw data is too huge to be saved here. Or one can run the simulation using the scripts described in the next section and save all data in this folder. 
 
 ## Simulations_Scripts
 
@@ -23,7 +23,7 @@ Download this repository, and browsing to ecoprospector directory, and install e
 
 ```{bash}
 $ cd yourDirectory/community-selection/ecoprospector
-$ pip install .
+$ pip install -e .
 ```
 Questions regarding development environment and dependency should be referred to the [ecoprospector package documentation](https://ecoprospector.readthedocs.io/en/latest/index.html)
 
@@ -35,9 +35,9 @@ $ source run_iteration.sh # Figure 3
 $ Rscript make_synthetic_communities.R ../Data/Mapping_Files/input_iteration.csv
 $ source run_robustness.sh # Figure 4
 ```
-Note that the robustness simulation takes directed evolved community and synthetic community, which require outcome of iteration simulation and the result of monoculture (to extract per-capita species features) from independent simulations.
+Note that the robustness simulation required the directed evolved community and synthetic community to have been generated. As well as the result of monoculture simulations run in run_independent.sh. It should therfore only be run after all other scripts have been run.
 
-To run the simulation for Figure S3 the internal dynamics, simply run this code in bash
+To run the simulation for Figure S3, simply run this code in bash
 
 ```{bash}
 $ python run_internal.py
