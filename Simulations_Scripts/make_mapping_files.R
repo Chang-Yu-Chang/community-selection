@@ -2,14 +2,15 @@
 #' 1. input_independent.csv
 #' 2. input_itertion.csv
 #' 3. input_robustness.csv
+#' 4. input_internal.csv
 
 library(tidyverse)
 library(data.table)
 
-seeds = 1:2 # Random seed. Default 1:100
+seeds = 1:100 # Random seed. Default 1:100
 cat("\nSeeds = ", seeds)
 data_directory = "../Data/Raw/"
-mapping_file_directory = "../Data/Mapping_Files/" # On cluster data_directory = "/home/cc2553/project/community_selection_project/data/raw/independent/"
+mapping_file_directory = "../Data/Mapping_Files/"
 
 
 # Function to make a row (a experiment) of csv ----
@@ -45,7 +46,7 @@ make_input_csv <- function(...){
             n_propagation = 1, # Incubation time
             n_transfer = 40, #Number of Transfers total number of transfers
             n_transfer_selection = 20, #Number of tranfers implementing selection regime
-
+            
             #Paramaters for community function, #paramaters that determine properties of function
             
             sigma_func = 1, #Standard deviation for drawing specifc speices/interaction function
@@ -201,13 +202,6 @@ make_input_csv <- function(...){
     return(output_row)
 }
 
-
-# Test ----
-input_test <- make_input_csv(n_wells = 24, n_transfer = 10, n_transfer_selection = 5, composition_lograte = 5)
-input_test$output_dir <- data_directory
-input_test[is.na(input_test)] <- "NA"
-fwrite(input_test, paste0(mapping_file_directory, "/input_test.csv"))
-
 # 1. input_independent.csv ----
 list_algorithms <- c("select_top25", "select_top10", "pool_top25", "pool_top10", 
     "Blouin2015", "Blouin2015_control", "Jochum2019", "Mueller2019", "Panke_Buisse2015", "Swenson2000a", "Swenson2000a_control", "Swenson2000c", "Wright2019", "Wright2019_control",
@@ -357,7 +351,7 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i) {
             temp$composition_lograte <- n_transfer_round/2
             
             # If not the first round, overwrite the plate by previous round, write the plate
-            if (j>=2) temp$overwrite_plate <- paste0(data_directory, paste0("f1_additive-iteration_", k, "_round", j-1, "-", i))
+            if (j>=2) temp$overwrite_plate <- paste0(data_directory, paste0("f1_additive-iteration_", k, "_round", j-1, "-", i, "_composition.txt"))
             
             # Overerite_plate is at equilibrium so it has to be passaged one more times before starting the next expeirmental round
             if (!is.na(temp$overwrite_plate)) temp$passage_overwrite_plate <- "True"
@@ -388,7 +382,10 @@ fwrite(input_iteration, paste0(mapping_file_directory, "input_iteration.csv"))
 
 # 3. input_robustness.csv ----
 selected_function <- "f1_additive"
-list_protocols <- c("simple_screening", paste0("iteration_", c(3,5)))
+n_directed_selected <- 20 # Total round of directed selection; default = 20
+n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
+
+list_protocols <- c("iteration_simple_screening", paste0("iteration_", c(3,5)))
 target_communities <- c("selected_community", "synthetic_community")
 list_perturbations <- c("migration", "migration2", "bottleneck", "resource_shift", "knock_out")
 
@@ -453,6 +450,14 @@ df[is.na(df)] <- "NA"
 df$selected_function <- selected_function
 
 fwrite(df, paste0(mapping_file_directory, "input_robustness.csv"))
+
+
+# 4. Internal dynamics ----
+input_internal <- make_input_csv(exp_id = "f1_additive-simple_screening-1-internal", n_wells = 1, n_transfer = 20, n_transfer_selection = 10, composition_lograte = 10)
+input_internal$output_dir <- data_directory
+input_internal[is.na(input_internal)] <- "NA"
+fwrite(input_internal, paste0(mapping_file_directory, "input_internal.csv"))
+
 
 cat("\n")
 

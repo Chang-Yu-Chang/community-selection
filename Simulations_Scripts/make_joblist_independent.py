@@ -12,7 +12,8 @@ import csv
 
 input_csv = str(sys.argv[1]) # Input file 
 output_joblist = str(sys.argv[2]) # Output file name
-cluster_envir_string = "" # cluster_envir_string = "module load miniconda; source activate py37_dev; "
+cluster_envir_string = ""
+commandline_tool = "ecoprospector "
 
 # Read input csv
 with open(input_csv,"r") as f:
@@ -47,11 +48,11 @@ line_temp = cluster_envir_string
 for i in range(total_experiments):
     # Monoculture takes longer, run one monoculture in one job
     if "monoculture" in list_exp_id[i]:
-        line_monoculture = cluster_envir_string + "ecoprospector " + input_csv + " " + str(i) + ";\n"
+        line_monoculture = cluster_envir_string + commandline_tool + input_csv + " " + str(i) + ";\n"
         fout.write(line_monoculture)
         continue
         
-    line_temp += "ecoprospector " + input_csv + " " + str(i) + ";"
+    line_temp += commandline_tool + input_csv + " " + str(i) + ";"
     counter += 1
 
     # Group 10 simulations into one job; if the number of expeirment cannot be fully divided by 10, also print the residue

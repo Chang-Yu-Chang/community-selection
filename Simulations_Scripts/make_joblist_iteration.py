@@ -12,7 +12,8 @@ import csv
 
 input_csv = str(sys.argv[1]) # Input csv for iteration
 output_joblist = str(sys.argv[2]) # Output file name
-cluster_envir_string = "" # cluster_envir_string = "module load miniconda; source activate py37_dev; "
+cluster_envir_string = ""
+commandline_tool = "ecoprospector "
 list_protocols = ["simple_screening"] + ["iteration_"+str(i) for i in range(1,8)]
 
 # Read input csv
@@ -51,13 +52,13 @@ for ls in range(1, n_seeds+1):
             
         # Screen
         if len(temp_index) == 1:
-            line_temp = "ecoprospector " + input_csv + " " + str(temp_index[0]) + "; "
+            line_temp = commandline_tool + input_csv + " " + str(temp_index[0]) + "; "
         
         # Iteration protocols
         if len(temp_index) != 1:
             line_temp = ""
             for k in range(len(temp_index)):
-                line_temp = line_temp + "ecoprospector " + input_csv + " " + str(temp_index[k]) + "; Rscript subset_plate_composition.R " + input_csv + " " + str(temp_index[k]) + "; "
+                line_temp = line_temp + commandline_tool + input_csv + " " + str(temp_index[k]) + "; "
         line = line + line_temp
 
             

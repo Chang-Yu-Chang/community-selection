@@ -12,7 +12,8 @@ import csv
 
 input_csv_robustness = str(sys.argv[1]) # Input csv for robustness
 output_joblist = str(sys.argv[2]) # Output file name
-cluster_envir_string = "" # cluster_envir_string = "module load miniconda; source activate py37_dev; "
+cluster_envir_string = ""
+commandline_tool = "ecoprospector "
 list_protocols = ["simple_screening"] + ["iteration_"+str(i) for i in [3,5]]
 
 # Read input csv
@@ -48,7 +49,7 @@ for ls in range(1, len(listr_seeds)+1):
         # Write perturbation protocols
         line_temp = ""
         for k in range(len(temp_index2)):
-            line_temp = line_temp + "ecoprospector " + input_csv_robustness + " " + str(temp_index2[k]) + "; "
+            line_temp = line_temp + commandline_tool + input_csv_robustness + " " + str(temp_index2[k]) + "; "
         line = line + line_temp
 
             
