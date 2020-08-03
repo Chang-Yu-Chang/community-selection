@@ -9,7 +9,7 @@ Contact: chang-yu.chang@yale.edu and jean.vila@yale.edu
 
 ## Data
 
-`Data/Mapping_Files/` contains input mapping `csv` files taken by ecoprospector to generate all data used in the main figures.
+`Data/Mapping_Files/` contains the input mapping `csv` files taken by ecoprospector. This generates all the data used in the main and supplementary figures.
 
 `Data/Tables/` contains table-related data used to make selection matrices in TableS1, or auto-generated from the Rscripts to make the TableS2-5.
 
