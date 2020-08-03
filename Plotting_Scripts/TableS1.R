@@ -6,8 +6,8 @@ library(flextable)
 library(officer)
 
 # Read selection matrices and protocols
-t1 <- fread("../data/TableS1.csv") # Curated protocols 
-sm <- fread("../data/TableS1_matrix_data.txt") %>% mutate(Pipetting = factor(Pipetting))  # Selection matrix data
+t1 <- fread("../Data/Tables/TableS1.csv") # Curated protocols 
+sm <- fread("../Data/Tables/TableS1_matrix_data.txt") %>% mutate(Pipetting = factor(Pipetting))  # Selection matrix data
 list_protocols = c("Swenson2000a", "Blouin2015", "Panke-Buisse2015", "Jochum2019", "Raynaud2019b", "Mueller2019", "Wright2019", "Swenson2000b", "Arora2019", "Raynaud2019a", "Chang2020a", "Chang2020b", "Swenson2000a_control", "Blouin2015_control", "Raynaud2019b_control", "Wright2019_control", "Swenson2000b_control", "Arora2019_control", "Raynaud2019a_control", "Chang2020a_control", "Chang2020b_control")
 sm$Col <- 25-sm$Col # So rank 1st = the one with highest function
 

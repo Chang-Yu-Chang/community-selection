@@ -28,7 +28,7 @@ t3 <- c(
     as_tibble() %>%
     setNames(c("Parameter",	"Description and units", "Value"))
 
-fwrite(t3, "../data/TableS3.csv")
+fwrite(t3, "../Data/Tables/TableS3.csv")
 
 ft3 <- flextable(t3) %>% 
     width(j = 2, width = 5) %>%

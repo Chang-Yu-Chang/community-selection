@@ -15,7 +15,7 @@ t4 <- c(
     as_tibble() %>%
     setNames(c("Parameter",	"Description and units", "Value"))
 
-fwrite(t4, "../data/TableS4.csv")
+fwrite(t4, "../Data/Tables/TableS4.csv")
 
 ft4 <- flextable(t4) %>% 
     width(j = 2, width = 5) %>%

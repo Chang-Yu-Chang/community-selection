@@ -20,7 +20,7 @@ t2 <- c(
     as_tibble() %>%
     setNames(c("Parameter",	"Description and units", "Value"))
 
-fwrite(t2, "../data/TableS2.csv")
+fwrite(t2, "../Data/Tables/TableS2.csv")
 
 ft2 <- flextable(t2) %>% 
     width(j = 2, width = 5) %>% 
