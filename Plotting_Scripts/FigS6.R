@@ -5,9 +5,9 @@ library(ggplot2)
 library(gridExtra)
 library(operators)
 
-mapping_file = fread('../data/input_independent.csv')
-mapping_file$comp_file = paste('../data/raw/',mapping_file$exp_id,'_composition.txt',sep='')
-mapping_file$func_file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
+mapping_file$comp_file = paste('../Data/Raw/',mapping_file$exp_id,'_composition.txt',sep='')
+mapping_file$func_file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 k = 2 #Seed for plotting
@@ -31,24 +31,19 @@ before_pooling$Phi = monoculture[match(before_pooling$ID,monoculture$ID)]$Phi
 after_pooling$Phi = monoculture[match(after_pooling$ID,monoculture$ID)]$Phi
 before_pooling$Time = 'Before Pooling'
 after_pooling$Time = 'After Pooling'
+
 all = rbind(before_pooling,after_pooling)
 all$PhiN = all$Phi*all$Abundance
 
-p1 <- ggboxplot(all,x='Time',y='Phi',col='Time',palette = "dark2",
-                add = "jitter",legend='right',shape=1,outlier.size=1,outlier.colour='white')+ 
-  scale_colour_manual(values =c('#D95F02','#7570B3')) +
-  labs(x='',y=expression(Phi[i]),col='') +
 
-  theme(axis.text.x=element_text(angle=-45,hjust=0.3,colour=c('#D95F02','#7570B3')),
-        axis.title.y = element_text(margin = margin(t = 0, r = -5, b = 0, l = 0)))   +
-  theme(legend.position = "none") 
-p2 <- ggboxplot(all,x='Time',y='PhiN',col='Time',palette = "dark2",
-                add = "jitter",legend='right',shape=1,outlier.size=1,outlier.colour='white') +  
+p1 <- ggboxplot(all,x='Time',y='PhiN',col='Time',palette = "dark2",
+                add = "jitter",legend='right',shape=1,outlier.size=1,outlier.colour='white',jitter.hight=0) +  
   scale_colour_manual(values =c('#D95F02','#7570B3')) + 
   labs(x='',y=expression(Phi[i]*N[i])) +
   theme(axis.text.x=element_text(angle=-45,hjust=0.3,colour=c('#D95F02','#7570B3')),
         axis.title.y = element_text(margin = margin(t = 0, r = -5, b = 0, l = 0)))  +
-  theme(legend.position = "none")  +
-  annotate('segment',x=1.165,xend=2,y=332.98741,yend=80.63878,linetype = 2,col ='Black') +
-  geom_point(aes(x=1.8, y=-127.4592), colour='#7570B3')
-ggsave('../Plots/FigS6.png',ggarrange(p1,p2,labels=c('A','B')),width=6,height=4)
+  annotate('segment',x=1.11,xend=2.06,y=300.2614,yend=119.64023,linetype = 2,col ='Black') +
+  annotate('segment',x=1.18,xend=1.985,y=198.6412,yend=23.23625,linetype = 2,col ='Black') +
+  annotate('segment',x=1.115,xend=2,y=178.1315,yend=0,linetype = 2,col ='Black')  + guides(col=FALSE)
+  
+ggsave('../Plots/FigS6.png',p1,width=3,height=4)

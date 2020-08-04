@@ -21,8 +21,8 @@ Omax <- function(filename){
 
 k = 2
 
-mapping_file = fread('../data/input_independent.csv')
-mapping_file$file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 
 A = mapping_file[directed_selection==TRUE & bottleneck == TRUE & bottleneck_size == 1e-5 & protocol == 'directed_selection',]
@@ -87,13 +87,13 @@ p2 <- ggplot() +
   geom_point(A[Transfer>0 & seed==k & Highlight == TRUE],mapping = aes(x=Transfer,y=CommunityPhenotype,group=Well),col='Gray20',size=0.5) + 
   theme_pubr() + labs(y='F',x='Generation')+ 
   geom_hline(yintercept= ctrl_max,linetype =2,col='Red')  +
-  scale_y_continuous(breaks=c(-1000,1000),limits=c(-1000,1300))+
+  scale_y_continuous(breaks=c(-1000,1000),limits=c(-1000,1450))+
   scale_x_continuous(breaks=c(0,20,40)) + theme(axis.text = element_text(size=8),axis.title = element_text(size=10)) +
-  annotation_custom( rasterGrob(readPNG( "../Plots/Cartoons/Fig2B.png", TRUE), interpolate=TRUE),xmin=19,xmax=21,ymin=750,ymax=1100) +
-  annotate('text',x=13,y=1300,label=expression(F[max](Parent)),size=3)  +
-  annotate('segment',x=20,xend=15,y=ctrl_max,yend=1200,linetype = 2,col = '#7570B3') +
-  annotate('text',x=33,y=1300,label=expression(F[max](Offspring)),size=3)   +
-  annotate('segment',x=40,xend=35,y=t_max,yend=1200,linetype = 2,col = '#7570B3')
+  annotation_custom( rasterGrob(readPNG( "../Plots/Cartoons/Fig2B.png", TRUE), interpolate=TRUE),xmin=19,xmax=21,ymin=900,ymax=1250) +
+  annotate('text',x=13,y=1450,label=expression(F[max](Parent)),size=3)  +
+  annotate('segment',x=20,xend=15,y=ctrl_max,yend=1350,linetype = 2,col = '#7570B3') +
+  annotate('text',x=33,y=1450,label=expression(F[max](Offspring)),size=3)   +
+  annotate('segment',x=40,xend=35,y=t_max,yend=1350,linetype = 2,col = '#7570B3')
   
 p3 <- ggplot(B[seed==k],aes(x=Popsize_mean,y=CommunityPhenotype)) + geom_jitter(height=0,width=0.1,shape=1,col='grey70') + 
   geom_line(aes(y=F_Mean),linetype=2,size=1,col='Purple') +

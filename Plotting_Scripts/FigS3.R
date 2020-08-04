@@ -10,7 +10,7 @@ library(grid)
 normalize <- function(x){
   return((x/sum(x)))
 }
-comp = fread('../data/f1_additive-simple_screening-1-internal_composition.csv')
+comp = fread('../Data/Raw/f1_additive-simple_screening-1-internal_composition.txt')
 comp = comp[Well == 'W0' & Type == 'consumer',]
 # comp$Transfer = paste('Generation', comp$Transfer,sep =' ')
 p1<- ggplot(comp[Transfer %in% c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)],aes(x=Time,y=Abundance,fill=as.factor(ID),col=as.factor(ID),width=0.85)) + 

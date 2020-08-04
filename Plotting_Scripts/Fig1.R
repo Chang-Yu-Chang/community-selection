@@ -5,8 +5,8 @@ library(ggplot2)
 library(gridExtra)
 library(png)
 library(grid)
-mapping_file = fread('../data/input_independent.csv')
-mapping_file$file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 #For a single run and protocol
@@ -50,12 +50,12 @@ pB <- rasterGrob(img2, interpolate=TRUE)
 
 pC <- ggplot(df_a[Transfer>0,])  +
   annotate("rect",xmin=-Inf,xmax=20.5,ymin=-Inf,ymax=Inf,alpha=0.2,fill='Grey') +
-  annotate("text",x=10.5,y=950,label='Selection',size=4) +
-  annotate("text",x=30.5,y=950,label='Stabilization',size=4) + 
+  annotate("text",x=10.5,y=550,label='Selection',size=4) +
+  annotate("text",x=30.5,y=550,label='Stabilization',size=4) + 
   geom_line(aes(x=Transfer,y=Mean,col=protocol),size=0.5)+ 
   geom_point(aes(x=Transfer,y=Mean,col=protocol),size=1) +
   labs(y = expression(Mean(F)),x = 'Generation',col='') + 
-  theme_pubr() + scale_y_continuous(limits=c(0,1000), breaks = c(0,1000)) +
+  theme_pubr() + scale_y_continuous(limits=c(0,570), breaks = c(0,500)) +
   scale_x_continuous(breaks = c(0,20,40)) + guides(col=FALSE)+
   scale_colour_brewer(palette='Dark2',labels=c('NS','AS','RS'))+
   theme(axis.text = element_text(size=9),axis.title = element_text(size=12)) + 
@@ -63,12 +63,12 @@ pC <- ggplot(df_a[Transfer>0,])  +
 
 pD <- ggplot(df_a[Transfer>0,])  +
   annotate("rect",xmin=-Inf,xmax=20.5,ymin=-Inf,ymax=Inf,alpha=0.2,fill='Grey') +
-  annotate("text",x=10.5,y=950,label='Selection',size=4) +
-  annotate("text",x=30.5,y=950,label='Stabilization',size=4) + 
+  annotate("text",x=10.5,y=550,label='Selection',size=4) +
+  annotate("text",x=30.5,y=550,label='Stabilization',size=4) + 
   geom_line(aes(x=Transfer,y=Maximum,col=protocol),size=0.5)+ 
   geom_point(aes(x=Transfer,y=Maximum,col=protocol),size=1) +
   labs(y = expression(F[max]),x = 'Generation',col='') + guides(col=FALSE)+
-  theme_pubr() + scale_y_continuous(limits=c(0,1000), breaks = c(0,1000)) +
+  theme_pubr() + scale_y_continuous(limits=c(0,570), breaks = c(0,500)) +
   scale_x_continuous(breaks = c(0,20,40)) +
   scale_colour_brewer(palette='Dark2',labels=c('NS','AS','RS')) +
   theme(axis.text = element_text(size=9),axis.title = element_text(size=12))+ 
@@ -98,8 +98,8 @@ pF <- ggplot(df_b,
   labs(x = '',y=expression(Q==F[max](AS) - F[max](NS) )) + scale_y_continuous(breaks=c(0,-2000,2000),limits=c(-2000,2000))
 
 top = ggarrange(pA,labels=c('A'),ncol=1)
-middle = ggarrange( ggarrange(pB,labels=c('B'),ncol=1),ggarrange(p1,p2,labels=c('C','D'),vjust =1,nrow=2,ncol=1),widths=c(2.2,1))
-bottom = ggarrange(p3,p4,common.legend=TRUE,labels=c('E','F'),legend='top',vjust=1)
+middle = ggarrange( ggarrange(pB,labels=c('B'),ncol=1),ggarrange(pC,pD,labels=c('C','D'),vjust =1,nrow=2,ncol=1),widths=c(2.2,1))
+bottom = ggarrange(pE,pF,common.legend=TRUE,labels=c('E','F'),legend='top',vjust=1)
 
 ggsave('../Plots/Fig1.png',ggarrange(top,middle,bottom,ncol=1,heights = c(1.5,2,2)),height=11,width=11)
 

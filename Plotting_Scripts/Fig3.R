@@ -9,13 +9,8 @@ library(grid)
 library(cowplot)
 k = 3
 
-mapping_file = fread('../data/input_additive_iteration.csv')
-mapping_file$file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
-
-mapping_file_2 = fread('../data/input_additive_iteration_screen.csv')
-mapping_file_2$file = paste('../data/raw/iteration_NS/',mapping_file_2$exp_id,'_function.txt',sep='')
-
-
+mapping_file = fread('../Data/Mapping_Files/input_iteration.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 t_bottleneck = mapping_file[grep('iteration_1',mapping_file$exp_id),]
 t_bottleneck = t_bottleneck[grep('round2',t_bottleneck$exp_id),]
 t_bottleneck = merge(rbindlist(lapply(t_bottleneck$file,fread)),t_bottleneck)
@@ -117,7 +112,7 @@ p4 <- ggplot() +
   ggtitle('Bottleneck + Migration')  + 
   theme(plot.title = element_text(size = 10,colour = '#1B9E77'))
 
-t2 = mapping_file_2[protocol=='simple_screening']
+t2 = mapping_file[protocol=='simple_screening']
 t2_control = t2[grep('simple_screening',t2$exp_id)]
 t2_control = merge(rbindlist(lapply(t2_control$file,fread)),t2_control)
 t2_control[,Maximum:=max(CommunityPhenotype),by=list(exp_id,Transfer)]

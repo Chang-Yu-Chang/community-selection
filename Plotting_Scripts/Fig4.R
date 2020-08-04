@@ -10,9 +10,9 @@ library(cowplot)
 
 img1 =  readPNG( "../Plots/Cartoons/Fig4A.png", TRUE)
 k = 3
-mapping_file = fread('../data/input_additive_robustness_screen.csv')
-mapping_file$file = paste('../data/raw/robustness/',mapping_file$exp_id,'_function.txt',sep='')
-mapping_file = mapping_file[!(migration == TRUE & is.na(n_migration_ds)) & migration == TRUE,]
+mapping_file = fread('../Data/Mapping_Files/input_robustness.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = mapping_file[!(migration == TRUE & is.na(n_migration)) & migration == TRUE,]
 t = mapping_file[seed==k]
 t = merge(rbindlist(lapply(t$file,fread)),t)
 t[,Maximum:=max(CommunityPhenotype),by=list(exp_id,Transfer)]

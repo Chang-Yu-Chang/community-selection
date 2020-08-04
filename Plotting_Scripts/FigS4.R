@@ -5,8 +5,8 @@ library(ggplot2)
 library(gridExtra)
 library(operators)
 
-mapping_file = fread('../data/input_independent.csv')
-mapping_file$file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 k = 2 #Seed for plotting
 A =merge(rbindlist(lapply(mapping_file[protocol == 'simple_screening' & monoculture == FALSE]$file,fread)),mapping_file)
@@ -42,7 +42,7 @@ p2 <- ggplot() +
   labs(x='Rank F at Start',y ='Rank F at Equilibrium')  + 
   theme_pubr() +  
   labs(shape = 'Species Pool',col = 'Species Pool') +
-  scale_x_continuous(breaks= c(1,96)) + scale_y_continuous(breaks=c(1,96))  +ggtitle(expression(rho == 0.289))
+  scale_x_continuous(breaks= c(1,96)) + scale_y_continuous(breaks=c(1,96))  +ggtitle(expression(rho == 0.42))
 
 
 

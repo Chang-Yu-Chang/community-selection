@@ -6,8 +6,8 @@ library(gridExtra)
 library(operators)
 
 
-mapping_file = fread('../data/input_independent.csv')
-mapping_file$file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 k = 2 #Seed for plotting
 
@@ -42,8 +42,8 @@ p1 <- ggplot() +
   # geom_hline(yintercept= ctrl_max,linetype =2,col='Red')  +
   scale_y_continuous(breaks=c(-1000,0,1000),limits=c(-1100,1100))+
   scale_x_continuous(breaks=c(0,20,40)) +  
-  annotate('text',x=20,y=1000,label=expression('Pool top 24 communitites ('*d == 10^3*')')) +
-  annotate("segment", x = 20, xend = 20, y = 900, yend = 800, colour = "Black", size=1, arrow=arrow(length = unit(0.2, "cm")))
+  annotate('text',x=20,y=1100,label=expression('Pool top 24 communitites ('*d == 10^3*')')) +
+  annotate("segment", x = 20, xend = 20, y = 1000, yend = 900, colour = "Black", size=1, arrow=arrow(length = unit(0.2, "cm")))
 
 A$parent_maximum = 0
 A$parent_variance = 0
@@ -113,8 +113,9 @@ p3 <- ggplot() +
   # geom_hline(yintercept= ctrl_max,linetype =2,col='Red')  +
   scale_y_continuous(breaks=c(-1000,0,1000),limits=c(-1100,1100))+
   scale_x_continuous(breaks=c(0,20,40)) +  
-  annotate('text',x=20,y=1000,label=expression('Select top 24 communitites ('*d == 10^3*')')) +
-  annotate("segment", x = 20, xend = 20, y = 900, yend = 800, colour = "Black", size=1, arrow=arrow(length = unit(0.2, "cm")))
+  annotate('text',x=20,y=1100,label=expression('Pool top 24 communitites ('*d == 10^3*')')) +
+  annotate("segment", x = 20, xend = 20, y = 1000, yend = 900, colour = "Black", size=1, arrow=arrow(length = unit(0.2, "cm")))
+
 
 B$parent_maximum = 0
 B$parent_variance = 0

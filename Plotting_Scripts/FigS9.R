@@ -7,9 +7,9 @@ library(gridExtra)
 library(operators)
 library(grid)
 library(cowplot)
-mapping_file = fread('../data/input_additive_robustness_screen.csv')
-mapping_file$file = paste('../data/raw/robustness/',mapping_file$exp_id,'_function.txt',sep='')
-mapping_file = mapping_file[!(migration == TRUE & is.na(n_migration_ds))] 
+mapping_file = fread('../Data/Mapping_Files/input_robustness.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = mapping_file[!(migration == TRUE & is.na(n_migration))] 
 mapping_file$Community ='NA'
 mapping_file$Pertubation ='NA'
 
