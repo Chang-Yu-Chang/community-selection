@@ -13,7 +13,7 @@ Contact: chang-yu.chang@yale.edu and jean.vila@yale.edu
 
 `Data/Tables/` contains table-related data used to make selection matrices in TableS1, or auto-generated from the Rscripts to make the TableS2-5.
 
-`Data/Raw/` is available upon request, because the raw data is too huge to be saved here. Alterantively you can run the simulation using the scripts described in the next section and save all data in this folder. 
+`Data/Raw/` saves raw data from simulation (~10G). Alterantively you can run the simulation using the scripts described in the next section and save all data in this folder. 
 
 ## Simulations_Scripts
 
