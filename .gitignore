@@ -140,13 +140,11 @@ Deprecated/*
 deprecated/*
 .ipynb_checkpoints/*
 *.Rproj
-Data/Raw/*
 Data/Mapping_Files/input_test.csv
-Plotting_Scripts/Fig_test.R
 Simulations_Scripts/make_joblist*
 Simulations_Scripts/make_mapping_files.R
-data_old/*
 Plots/Cartoons/*pdf
+documents/*
 
 # Session Data files
 .RData

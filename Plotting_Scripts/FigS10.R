@@ -4,8 +4,8 @@ library(ggplot2)
 library(gridExtra)
 library(png)
 library(grid)
-mapping_file = fread('../data/input_independent.csv')
-mapping_file$file = paste('../data/raw/',mapping_file$exp_id,'_function.txt',sep='')
+mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
+mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 A =merge(rbindlist(lapply(mapping_file[protocol == 'select_top25' & monoculture == FALSE & !is.na(bottleneck_size)]$file,fread)),mapping_file[protocol == 'select_top25' & monoculture == FALSE & !is.na(bottleneck_size)])
