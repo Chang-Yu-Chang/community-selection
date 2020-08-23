@@ -1,0 +1,6 @@
+Parameter,Description and units,Value
+theta,The percentile determining the high-performing species in the species pool used to knock in,0.95
+d_bottleneck,Bottleneck size,1e+05
+n_mig,Number of cells in the migrant community,1e+06
+f_coalescence,Mixing ratio of coalescence; biomass of immigrant community relative to that of a perturbed community copy,0.5
+r_percent,Tunes the magnitude of resource perturbation. The fraction from depleting a resource and move the same amount to another,1

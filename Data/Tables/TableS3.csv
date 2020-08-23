@@ -1,0 +1,18 @@
+Parameter,Description and units,Value
+M,Number of resources,90
+T,Number of resource classes,1
+H,Number of microbial species in global pool,2100
+Rtot,Total resource abundance,1000
+S_f,Number of specialist families,1
+uc,Mean sum over a row of the preference matrix ciα,10
+σc,Standard deviation of sum over a row of the preference matrix ciα,3
+c0,Low consumption level for binary ciα,0
+c1,High consumption level for binary ciα,1
+q,Fraction of consumption capacity allocated to preferred resource class,0
+s,Sparsity of metabolic matrix,0.2
+fw,Fraction of secreted byproducts allocated to waste resource class,0.45
+fs,Fraction of secreted byproducts allocated to the same resource class,0.45
+a,Exponent parameter in power-law distribution that determines the species abundance in regional pool,0.01
+scale,Number of cells equivalent to N_i = 1,1e+06
+n_inoc,Number of cells in the initial inoculum,1e+06
+α,Relative functional contribution of species interaction to the additive case,1
