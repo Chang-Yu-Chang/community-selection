@@ -6,19 +6,22 @@ suppressWarnings(suppressMessages(library(data.table)))
 args <- commandArgs(TRUE)
 input_csv <- args[1] # Input iteration csv
 
-for (seed in 1:100){
-    for (protocol in c("iteration_simple_screening", paste0("iteration_", c(3, 5)))){
-        cat(seed, "\t", protocol, "\n")
+df_input <- fread(input_csv) %>% as_tibble
+seeds <- unique(df_input$seed)
+selected_function <- unique(df_input$selected_function)
+data_directory <- unique(df_input$output_dir)
+
+for (seed in seeds){
+    for (protocol in c("iteration_simple_screening", paste0("iteration_", 1:7))){
+        cat("seed =", seed, "\t", protocol, "\n")
         
         # Overall settings
-        df_input <- fread(input_csv) %>% as_tibble
-        data_directory <- unique(df_input$output_dir)
         n_directed_selected <- length(grep(paste0(protocol, "_round\\d+-", seed, "$"), df_input$exp_id, value = T)) - 3 # Total round of directed selection; default = 20
         n_transfer_round <- unique(df_input$n_transfer) # Number of transfer between two selection rounds; default = 20
         
         
         # Find high performing isolates; read monoculture data 
-        df_mono <- fread(paste0(data_directory, "f1_additive-monoculture-", seed, "_function.txt")) %>% as_tibble
+        df_mono <- fread(paste0(sub("iteration", "independent", data_directory), selected_function, "-monoculture-", seed, "_function.txt")) %>% as_tibble
         df_per_capita <- df_mono %>%
             filter(Transfer == 0) %>%
             mutate(PerCapitaFunction = CommunityPhenotype / Biomass,
