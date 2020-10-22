@@ -7,10 +7,10 @@ deprecated/*
 .ipynb_checkpoints/*
 *.Rproj
 Data/Mapping_Files/input_test.csv
-Simulations_Scripts/make_joblist*
-Simulations_Scripts/make_mapping_files.R
+Simulations_Scripts/deprecated/*
 Plots/Cartoons/*pdf
 documents/*
+Data/test/*
 
 # Session Data files
 .RData
