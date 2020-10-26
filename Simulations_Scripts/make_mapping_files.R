@@ -3,8 +3,8 @@
 suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
-test_small_set <- F
-pool_csv <- T
+test_small_set <- T
+pool_csv <- F
 seeds = 1:20 # Random seed. Default 1:100
 #time_stamp <- paste0(sprintf("%03d", round(((as.numeric(Sys.time()) * 12345) %% 1000))), "-")
 time_stamp <- ""
