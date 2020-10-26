@@ -4,14 +4,16 @@ suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
 test_small_set <- F
+pool_csv <- T
+seeds = 1:20 # Random seed. Default 1:100
 #time_stamp <- paste0(sprintf("%03d", round(((as.numeric(Sys.time()) * 12345) %% 1000))), "-")
 time_stamp <- ""
-seeds = 1:20 # Random seed. Default 1:100
 cat("\nSeeds = ", seeds, "\n")
 #data_directory = "../Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
-list_selected_functions <- c("f1_additive", "f1a_additive", "f2_interaction", "f2a_interaction") %>% setNames(1:length(.))
+list_selected_functions <- c("f1_additive", "f1a_additive", "f2_interaction", "f2a_interaction", "f6_target_resource") %>% setNames(1:length(.))
+#list_selected_functions <- c("f6_target_resource") %>% setNames(1:length(.))
 
 make_input_csv <- function(...){
     args = list(...)
@@ -54,6 +56,7 @@ make_input_csv <- function(...){
             g0 = 1, # The baseline conversion factor of biomass per energy
             cost_mean = 0, # Mean fraction of cost feeded into a gamma distribution. Suggested up to 0.05
             cost_sd = 0, # Sd fraction of cost feeded into a gamma distribution. cost_sd = 0 if cost_mean = 0, cost_sd= 0.01 if cost_mean >0
+            target_resource = NA, # Target resource production when selected_function=f6_target_resourece
             
             #Paramaters for Directed Selection (for directed selection protocols that can't be coded up in experiment paramaters)
             
@@ -202,7 +205,7 @@ make_input_csv <- function(...){
     
     return(output_row)
 }
-input_independent_wrapper <- function (selected_function = "f1_additive", i) {
+input_independent_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
     list_algorithms <- c(
         "select_top25", "select_top10", "pool_top25", "pool_top10", 
         "Blouin2015", "Blouin2015_control", "Jochum2019", "Mueller2019", "Panke_Buisse2015", "Swenson2000a", "Swenson2000a_control", "Swenson2000c", "Wright2019", "Wright2019_control",
@@ -278,12 +281,14 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i) {
     }
     
     df$output_dir <- paste0(data_directory, "independent_", selected_function, "/")
+    df$rich_medium <- rich_medium
+    df$l <- l
     df[is.na(df)] <- "NA"
     df$exp_id <- paste0(time_stamp, df$exp_id)
     
     return(df)
 }
-input_iteration_wrapper <- function (selected_function = "f1_additive", i) {
+input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
     n_directed_selected <- 20 # Total round of directed selection; default = 20
     n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
     list_seq_ds <- list(
@@ -340,7 +345,7 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i) {
             temp$composition_lograte <- n_transfer_round/2
             
             # If not the first round, overwrite the plate by previous round, write the plate
-            if (j>=2) temp$overwrite_plate <- paste0(data_directory, "iteration_", selected_function, "/", paste0("f1_additive-iteration_", k, "_round", j-1, "-", i, "_composition.txt"))
+            if (j>=2) temp$overwrite_plate <- paste0(data_directory, "iteration_", selected_function, "/", paste0(selected_function, "-iteration_", k, "_round", j-1, "-", i, "_composition.txt"))
             
             # Overerite_plate is at equilibrium so it has to be passaged one more times before starting the next expeirmental round
             if (!is.na(temp$overwrite_plate)) temp$passage_overwrite_plate <- "True"
@@ -352,12 +357,14 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i) {
     
     
     df$output_dir <- paste0(data_directory, "iteration_", selected_function, "/")
+    df$rich_medium <- rich_medium
+    df$l <- l
     df[is.na(df)] <- "NA"
     df$selected_function <- selected_function
     df$exp_id <- paste0(time_stamp, df$exp_id)
     return(df)
 }
-input_robustness_wrapper <- function(selected_function = "f1_additive", i) {
+input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_medium = T, l = 0) {
     n_directed_selected <- 20 # Total round of directed selection; default = 20
     n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
     list_protocols <- c("iteration_simple_screening", paste0("iteration_", c(3,5)))
@@ -414,6 +421,8 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i) {
         }
     }
     df$output_dir <- paste0(data_directory, "robustness_", selected_function, "/")
+    df$rich_medium <- rich_medium
+    df$l <- l
     df[is.na(df)] <- "NA"
     df$selected_function <- selected_function
     df$exp_id <- paste0(time_stamp, df$exp_id)
@@ -429,6 +438,12 @@ for (k in 1:length(list_selected_functions)) {
     input_independent_list[[k]][[1]] <- input_independent_wrapper(selected_function = list_selected_functions[k], i = 1)
     input_iteration_list[[k]][[1]] <- input_iteration_wrapper(selected_function = list_selected_functions[k], i = 1)
     input_robustness_list[[k]][[1]] <- input_robustness_wrapper(selected_function = list_selected_functions[k], i = 1)
+    
+    if (list_selected_functions[k] == "f6_target_resource") {
+        input_independent_list[[k]][[1]] <- input_independent_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
+        input_iteration_list[[k]][[1]] <- input_iteration_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
+        input_robustness_list[[k]][[1]] <- input_robustness_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
+    }
     
     for (i in seeds) {
         input_independent_list[[k]][[i]] <- input_independent_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id))
@@ -456,20 +471,17 @@ for (k in 1:length(list_selected_functions)) {
 }
 
 
-if (FALSE) {
+if (pool_csv) {
     # cat("\nMaking input_independent_", list_selected_functions, "\n")
     # cat("\nMaking input_iteration.csv\n")
     # cat("\nMaking input_robusntess.csv\n")
     input_independent <- bind_rows(input_independent_list)
-    input_independent$n_wells <- 10
     fwrite(input_independent, paste0(mapping_file_directory, "input_independent.csv"))
     
     input_iteration <- bind_rows(input_iteration_list)
-    input_iteration$n_wells <- 10
     fwrite(input_iteration, paste0(mapping_file_directory, "input_iteration.csv"))
     
     input_robustness <- bind_rows(input_robustness_list)
-    input_robustness$n_wells <- 10
     fwrite(input_robustness, paste0(mapping_file_directory, "input_robustness.csv"))
 }
 

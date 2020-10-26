@@ -81,6 +81,47 @@ make_synthetic_communities() {
     Rscript ~/project/community-selection/wrapper/make_synthetic_communities.R $1
 }
 
+# Wrapper function for cluster command
+print_cluster_commands() {
+x="
+# Cluster
+create_wrapper_folder independent_$1
+create_wrapper_folder iteration_$1
+create_wrapper_folder robustness_$1
+
+# Locally
+Rscript make_mapping_files.R
+upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_independent_$1.csv project/community-selection/wrapper/independent_$1/
+upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_iteration_$1.csv project/community-selection/wrapper/iteration_$1/
+upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_robustness_$1.csv project/community-selection/wrapper/robustness_$1/
+    
+# Cluster independent
+cd ~/project/community-selection/wrapper/independent_$1
+make_joblist independent input_independent_$1.csv joblist_independent_$1.txt
+make_sbatch_file joblist_independent_$1.txt 20 24
+sbatch batch_independent_$1.sh
+
+# Cluster iteration
+cd ~/project/community-selection/wrapper/iteration_$1
+make_joblist iteration input_iteration_$1.csv joblist_iteration_$1.txt
+make_sbatch_file joblist_iteration_$1.txt 20 24
+sbatch batch_iteration_$1.sh
+
+# Make synthetic community
+source activate py37_dev
+cd ../iteration_$1
+make_synthetic_communities input_iteration_$1.csv
+conda deactivate
+
+# Robustness
+cd ~/project/community-selection/wrapper/robustness_$1
+make_joblist independent input_robustness_$1.csv joblist_robustness_$1.txt
+make_sbatch_file joblist_robustness_$1.txt 10 10
+sbatch batch_robustness_$1.sh
+"
+echo $x
+}
+
 
 # Count lines in a file
 cl() {
@@ -102,8 +143,6 @@ lljob() {
 catjob() {
     cat ~/project/community-selection/job/$1
 }
-
-
 
 
 
