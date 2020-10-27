@@ -54,7 +54,7 @@
         "ecoprospector": {
             "editable": true,
             "git": "https://github.com/Chang-Yu-Chang/ecoprospector.git",
-            "ref": "96be785f1c00f45765bd04684e42e133fd1f93f3"
+            "ref": "0b5470a10c9138c3d4126c8c8a2f42b0181ebf44"
         },
         "ecos": {
             "hashes": [
