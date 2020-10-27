@@ -12,17 +12,17 @@ cat("\nSeeds = ", seeds, "\n")
 #data_directory = "../Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
-list_selected_functions <- c("f1_additive", "f1a_additive", "f2_interaction", "f2a_interaction", "f6_target_resource") %>% setNames(1:length(.))
-#list_selected_functions <- c("f6_target_resource") %>% setNames(1:length(.))
+#list_selected_functions <- c("f1_additive", "f1a_additive", "f2_interaction", "f2a_interaction", "f6_target_resource") %>% setNames(1:length(.))
+list_selected_functions <- c("f5_invader_growth") %>% setNames(1:length(.))
 
 make_input_csv <- function(...){
     args = list(...)
-    
+
     # List of parameters
     df_default <-
         data.frame(
             stringsAsFactors = FALSE,
-            
+
             selected_function = "f1_additive", #Function that is under selection
             protocol = "simple_screening", #protocol to implement
             seed = 1, #Seed for species poo l
@@ -35,9 +35,9 @@ make_input_csv <- function(...){
             save_plate = F, #Save initial plate
             function_lograte = 1, #How often do you save the function in transfers
             composition_lograte = 20, #How often do you save the compoistion in transfers
-            
+
             #Experiment Paramaters (applies to for all protocols)
-            
+
             scale = 1000000, # Number of cells when N_i = 1
             n_inoc = 1000000, # Number of cells sampled from the regional species at start
             rich_medium = T, #Whether to generate a rich medium sampled from a a random distribution or a minimal media with only a single resource
@@ -47,9 +47,9 @@ make_input_csv <- function(...){
             n_propagation = 1, # Incubation time
             n_transfer = 40, #Number of Transfers total number of transfers
             n_transfer_selection = 20, #Number of tranfers implementing selection regime
-            
+
             #Paramaters for community function, #paramaters that determine properties of function
-            
+
             sigma_func = 1, #Standard deviation for drawing specifc speices/interaction function
             alpha_func = 1, # Scaling factor between species- and interaction-specific function variances
             binary_threshold = 1, #Threshold for binary functions
@@ -57,9 +57,9 @@ make_input_csv <- function(...){
             cost_mean = 0, # Mean fraction of cost feeded into a gamma distribution. Suggested up to 0.05
             cost_sd = 0, # Sd fraction of cost feeded into a gamma distribution. cost_sd = 0 if cost_mean = 0, cost_sd= 0.01 if cost_mean >0
             target_resource = NA, # Target resource production when selected_function=f6_target_resourece
-            
+
             #Paramaters for Directed Selection (for directed selection protocols that can't be coded up in experiment paramaters)
-            
+
             directed_selection = F, # If true whenever select_top is selected the highest performing Community is propagated asexually and some kind of pertubations can ne applied
             knock_out = F, #If True performs knock out pertubations
             knock_in = F, #If True performs knock in pertubation
@@ -74,10 +74,10 @@ make_input_csv <- function(...){
             resource_shift = F, #If true performs resource pertubations
             r_type = NA, # Type of resource pertubation. rescale_add, rescale_remove, add, remove, old. if NA defaults to resource swap
             r_percent = NA, # Tunes the magnitude of resource pertubation if NA does not perform resource pertubation
-            
+
             #Paramaters for community simulator package, note that we have split up a couple of paramaters that are inputed as list (SA and SGen). In the mapping file
             #if paramater is set as NA it takes the default value in community_simulator package. Also some paramaters could actually be inputed as lists but this is beyond the scope of this structure of mapping file i.e m, w,g r
-            
+
             sampling = "Binary_Gamma", #{'Gaussian','Binary','Gamma', 'Binary_Gamma'} specifies choice of sampling algorithm
             sn = 2100, #number of species per specialist family
             sf = 1, #number of specialist families, # note SA = sn *np.ones(sf)
@@ -107,10 +107,10 @@ make_input_csv <- function(...){
             tau = NA, # external resource supply  rate (for chemostat)
             r = NA, #renewal rate for self renewing resources
             S = 100 # number of species in the initial community, legacy of the community-simulator
-            
-        ) 
-    
-    
+
+        )
+
+
     argument_names <- colnames(df_default)
     # If there is no change, output a line of default
     if (length(args) == 0) {
@@ -121,35 +121,35 @@ make_input_csv <- function(...){
         to_changed_args <- names(args)
         if (!all(to_changed_args %in% argument_names)) stop("Errors: arguments do not exist in the list")
         for (i in 1:length(to_changed_args)) output_row[,to_changed_args[i]] <- args[[i]][1]
-        
+
         # Dependency
         ## Set exp_id names by the seed, selected function, and protocol (and directed selection type if protocol is directed selection)
         output_row$exp_id = paste(output_row$selected_function, output_row$protocol, output_row$seed, sep = "-")
-        
+
         ## Monoculture
         if (output_row$monoculture == TRUE) {
             if (output_row$protocol != "simple_screening") stop("Errors: monoculture plate has to be simple_screening")
             #output_row$protocol = "monoculture"
             output_row$exp_id = paste(output_row$selected_function, "monoculture", output_row$seed, sep = "-")
         }
-        
-        ## Cost per function. Fixed sd of cost is specified 
+
+        ## Cost per function. Fixed sd of cost is specified
         if (output_row$cost_mean != 0) output_row$cost_sd <- 0.01
-        
+
         ## Check on the dependency of arguments on directed selection
         list_directed_selections <- c("knock_out", "knock_in", "bottleneck", "migration", "coalescence", "resource_shift")
-        
+
         if (any(unlist(output_row[,list_directed_selections]))) {
             # Set the flag TRUE
             #output_row$protocol <- "directed_selection"
             output_row$directed_selection <- TRUE
-            
+
             # Check on the dependency of arguments. For example, bottleneck_size is not NA when bottleneck is TRUE
             if (all(output_row[list_directed_selections] == FALSE)) stop("Errors: A directed selection approach must be speicified")
-            
+
             # exp_id
             if (!("exp_id" %in% names(args))) output_row$exp_id = paste(output_row$selected_function, output_row$protocol, list_directed_selections[unlist(output_row[,list_directed_selections])], output_row$seed, sep = "-")
-            
+
             if (output_row$knock_in == TRUE) {
                 temp1 <- output_row$knock_in_threshold
                 if (is.na(temp1)) temp1 <- 0.95
@@ -176,70 +176,70 @@ make_input_csv <- function(...){
                 output_row$exp_id = paste(output_row$selected_function, output_row$protocol, "resource_shift", temp1, paste0("p", temp2*100), output_row$seed, sep = "-")
             }
         }
-        
+
         # Check on the possible bug. For example, n_transfer must be larger than n_transfer_selection
         if (output_row$n_transfer < output_row$n_transfer_selection) stop("Errors: n_transfer must be greater than n_transfer_selection")
         if (output_row$n_transfer < output_row$function_lograte) stop("Errors: n_transfer must be greater than the function_lograte")
         if (output_row$n_transfer < output_row$composition_lograte) stop("Errors: n_transfer must be greater than the composition_lograte")
         #if (output_row$protocol != "directed_selection" & output_row$directed_selection == T) stop("protocol name needs to be changed to directed selection")
-        
+
         # Placeholder for checking whether the protocol is available
-        
+
     }
-    
+
     # Modify the parameter format so it's readible by python
     output_row[sapply(output_row, isTRUE)] <- "True"
     output_row[sapply(output_row, isFALSE)] <- "False"
-    
+
     # If exp_id speficied in the arguments, use it
     if ("exp_id" %in% names(args)) output_row$exp_id <- args$exp_id
-    
+
     # Turn off scientific notation printout for large / small fractions numeric paramters
     for (i in 1:length(output_row[1,])) if (is.numeric(output_row[1,i])) output_row[1,i] <- format(output_row[1,i], scientific = FALSE)
-    
-    # 
+
+    #
     output_row$seed <- as.numeric(output_row$seed)
     output_row$composition_lograte <- as.numeric(output_row$composition_lograte)
-    output_row$n_transfer <- as.numeric(output_row$n_transfer) 
+    output_row$n_transfer <- as.numeric(output_row$n_transfer)
     output_row$n_transfer_selection  <- as.numeric(output_row$n_transfer_selection)
-    
+
     return(output_row)
 }
 input_independent_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
     list_algorithms <- c(
-        "select_top25", "select_top10", "pool_top25", "pool_top10", 
+        "select_top25", "select_top10", "pool_top25", "pool_top10",
         "Blouin2015", "Blouin2015_control", "Jochum2019", "Mueller2019", "Panke_Buisse2015", "Swenson2000a", "Swenson2000a_control", "Swenson2000c", "Wright2019", "Wright2019_control",
         "Swenson2000b", "Swenson2000b_control", "Chang2020a", "Chang2020a_control", "Chang2020b", "Chang2020b_control",
         "Arora2019", "Arora2019_control", "Raynaud2019a", "Raynaud2019a_control", "Raynaud2019b", "Raynaud2019b_control"
     )
     df <- make_input_csv(); df <- df[-1,]
-    
+
     # Screen
     temp <- make_input_csv(selected_function = selected_function, seed = i)
     df <- bind_rows(df, temp)
-    
+
     # Monoculture
     temp <- make_input_csv(selected_function = selected_function, monoculture = T, seed = i)
     df <- bind_rows(df, temp)
-    
+
     # Experimental protocol
     temp_list <- rep(list(NA), length(list_algorithms))
     for (j in 1:length(list_algorithms)) temp_list[[j]] <- make_input_csv(selected_function = selected_function, protocol = list_algorithms[j], seed = i)
     df <- bind_rows(df, temp_list)
-    
-    
+
+
     # Directed selection
     ## Knock out
     df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", knock_out = TRUE, composition_lograte = 1, seed = i) %>%
             mutate(exp_id = paste(selected_function, "knock_out", i, sep = "-")))
-    
+
     ## Knockin
     knock_in_threshold <- c(0, 0.95)
     for (j in 1:length(knock_in_threshold)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", knock_in = TRUE, knock_in_threshold = knock_in_threshold[j], seed = i) %>%
                 mutate(exp_id = paste(selected_function, "knock_in", j, i, sep = "-")))
     }
-    
+
     ## Bottleneck
     #bottleneck_size <- c(0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001)
     bottleneck_size <- c(-5:-1 %>% 10^., 1e-6, 2e-6, 4e-6, 8e-6 , 1.6e-5,3.2e-5,6.4e-5,1.28e-4, 2.56e-4,5.12e-4, 1.024e-3, 5e-7, 2.5e-7, 1.25e-7)
@@ -255,7 +255,7 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "pool_top10", bottleneck = TRUE, bottleneck_size = bottleneck_size[j], seed = i) %>%
                 mutate(exp_id = paste(selected_function, "bottleneck_pool_top10", j, i, sep = "-")))
     }
-    
+
     ## Migration
     s_migration <- c(NA, 1, 2, 4, 8, 16, 32)
     n_migration <- rep(1000000, length(s_migration))
@@ -263,15 +263,15 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", migration = TRUE, s_migration = s_migration[j], n_migration = n_migration[j], seed = i) %>%
                 mutate(exp_id = paste(selected_function, "migration", j, i, sep = "-")))
     }
-    
+
     ## Coalescence
     frac_coalescence <- c(0.5)
     for (j in 1:length(frac_coalescence)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", coalescence = TRUE, frac_coalescence = frac_coalescence[j], seed = i) %>%
                 mutate(exp_id = paste(selected_function, "coalescence", j, i, sep = "-")))
-        
+
     }
-    
+
     ## Resource shift
     r_percent <- c(0.01, 0.1, 0.5, 1)
     r_type <- rep("add", length(r_percent)) # resource type is resource_add by default
@@ -279,13 +279,13 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", resource_shift = TRUE, r_type = r_type[j], r_percent = r_percent[j], seed = i) %>%
                 mutate(exp_id = paste(selected_function, "resource_shift", j, i, sep = "-")))
     }
-    
+
     df$output_dir <- paste0(data_directory, "independent_", selected_function, "/")
     df$rich_medium <- rich_medium
     df$l <- l
     df[is.na(df)] <- "NA"
     df$exp_id <- paste0(time_stamp, df$exp_id)
-    
+
     return(df)
 }
 input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
@@ -303,30 +303,30 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
         # Repeat them to the length of number of directed selection rounds
         # Add two rounds of screen in the end
         lapply(function(x) c("simple_screening",rep(x, n_directed_selected/length(x)), rep("simple_screening", 2)))
-    
+
     df <- make_input_csv(); df <- df[-1,]
-    
+
     # Screen
     df <- bind_rows(df, make_input_csv(seed = i, exp_id = paste0(selected_function, "-iteration_simple_screening-", i)))
-    
+
     # Iterative protocols
     for (k in 1:length(list_seq_ds)) {
         seq_ds <- list_seq_ds[[k]]
-        
-        # Tune the perturbation size 
+
+        # Tune the perturbation size
         s_migration <- NA
-        if (k <= 3) { bottleneck_size <- 1e-4; migration = T;n_migration <- 1e6 
+        if (k <= 3) { bottleneck_size <- 1e-4; migration = T;n_migration <- 1e6
         } else if (k == 4) { bottleneck_size <- 1e-13; migration = T; n_migration <- 1e6
-        } else if (k == 5) { bottleneck_size <- 1e-4; migration = T; n_migration <- 1e2 
-        } else if (k == 6) { bottleneck_size <- 1; migration = T; n_migration <- 1e2 
+        } else if (k == 5) { bottleneck_size <- 1e-4; migration = T; n_migration <- 1e2
+        } else if (k == 6) { bottleneck_size <- 1; migration = T; n_migration <- 1e2
         } else if (k == 7) { bottleneck_size <- 1e-13; migration = F; n_migration <- NA}
-        
+
         # Iterations
         for (j in 1:length(seq_ds)) {
             # Output file id
             exp_id <- paste0(selected_function, "-iteration_", k, "_round", j, "-", i)
-            
-            
+
+
             # Make the protocol
             if (seq_ds[j] == "simple_screening") {
                 temp <- make_input_csv(exp_id = exp_id, seed = i)
@@ -338,24 +338,24 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
                 temp <- make_input_csv(exp_id = exp_id, protocol = "directed_selection", bottleneck = TRUE, bottleneck_size = bottleneck_size,
                     migration = migration, s_migration = s_migration, n_migration = n_migration, seed = i)
             }
-            
+
             # Remove stabilization phase
             temp$n_transfer <- n_transfer_round
             temp$n_transfer_selection <- n_transfer_round/2
             temp$composition_lograte <- n_transfer_round/2
-            
+
             # If not the first round, overwrite the plate by previous round, write the plate
             if (j>=2) temp$overwrite_plate <- paste0(data_directory, "iteration_", selected_function, "/", paste0(selected_function, "-iteration_", k, "_round", j-1, "-", i, "_composition.txt"))
-            
+
             # Overerite_plate is at equilibrium so it has to be passaged one more times before starting the next expeirmental round
             if (!is.na(temp$overwrite_plate)) temp$passage_overwrite_plate <- "True"
-            
+
             df <- bind_rows(df, temp)
         }
-        
+
     }
-    
-    
+
+
     df$output_dir <- paste0(data_directory, "iteration_", selected_function, "/")
     df$rich_medium <- rich_medium
     df$l <- l
@@ -378,7 +378,7 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_
             overwrite_plate <- paste0(data_directory, "iteration_", sf, "/", sf, "-", protocol, "_round", n_directed_selected+3, "-", seed, "-", target_community, ".txt")
         }
         exp_id <- paste0(sf, "-", protocol,"-", seed, "-", target_community, "-", perturbation)
-        
+
         #
         if (perturbation == "migration") {
             temp <- make_input_csv(protocol = "directed_selection", migration = T)
@@ -391,26 +391,26 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_
         } else if (perturbation == "resource_shift") {
             temp <- make_input_csv(protocol = "directed_selection", resource_shift = T)
         }
-        
+
         temp$exp_id <- exp_id
         temp$overwrite_plate <- overwrite_plate
         temp$passage_overwrite_plate <- "True"
         temp$composition_lograte = 1
         temp$seed = seed
-        
+
         return(temp)
-        
+
     }
-    
+
     df <- make_input_csv(); df <- df[-1,]
     df <- df %>% mutate(overwrite_plate = as.character(overwrite_plate), passage_overwrite_plate = as.character(passage_overwrite_plate))
-    
+
     for (j in 1:length(list_protocols)) {
         for (tc in 1:length(target_communities)) {
             for (lp in 1:length(list_perturbations)) {
                 temp <- make_input_perturbation(
                     data_directory = data_directory,
-                    sf = selected_function, 
+                    sf = selected_function,
                     protocol = list_protocols[j],
                     n_directed_selected = n_directed_selected,
                     target_community = target_communities[tc],
@@ -434,37 +434,41 @@ input_robustness_list <- rep(list(rep(list(NA), length(seeds))), length(list_sel
 
 for (k in 1:length(list_selected_functions)) {
     cat("\nMaking csv for", list_selected_functions[k], "\n")
-    
+
     input_independent_list[[k]][[1]] <- input_independent_wrapper(selected_function = list_selected_functions[k], i = 1)
     input_iteration_list[[k]][[1]] <- input_iteration_wrapper(selected_function = list_selected_functions[k], i = 1)
     input_robustness_list[[k]][[1]] <- input_robustness_wrapper(selected_function = list_selected_functions[k], i = 1)
-    
+
     if (list_selected_functions[k] == "f6_target_resource") {
         input_independent_list[[k]][[1]] <- input_independent_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
         input_iteration_list[[k]][[1]] <- input_iteration_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
         input_robustness_list[[k]][[1]] <- input_robustness_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
     }
-    
+
     for (i in seeds) {
         input_independent_list[[k]][[i]] <- input_independent_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id))
         input_iteration_list[[k]][[i]] <- input_iteration_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id), overwrite_plate = sub("-\\d_composition.txt$", paste0("-", i, "_composition.txt"), overwrite_plate))
         input_robustness_list[[k]][[i]] <- input_robustness_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d-s", paste0("-", i, "-s"), exp_id), overwrite_plate = sub("-\\d-s", paste0("-", i, "-s"), overwrite_plate))
     }
-    
+
     input_independent <- rbindlist(input_independent_list[[k]])
     input_iteration <- rbindlist(input_iteration_list[[k]])
     input_robustness <- rbindlist(input_robustness_list[[k]])
-    
+
     if (test_small_set) {
         input_independent$n_wells <- 5
         input_iteration$n_wells <- 5
         input_robustness$n_wells <- 5
+        input_independent$sn <- 100
+        input_iteration$sn <- 100
+        input_robustness$sn <- 100
+
     }
-    
+
     input_independent$save_composition <- FALSE
     input_iteration$save_composition <- TRUE
     input_robustness$save_composition <- FALSE
-    
+
     fwrite(input_independent, paste0(mapping_file_directory, paste0("input_independent_", list_selected_functions[k],".csv")))
     fwrite(input_iteration, paste0(mapping_file_directory, paste0("input_iteration_", list_selected_functions[k],".csv")))
     fwrite(input_robustness, paste0(mapping_file_directory, paste0("input_robustness_", list_selected_functions[k],".csv")))
@@ -477,15 +481,15 @@ if (pool_csv) {
     # cat("\nMaking input_robusntess.csv\n")
     input_independent <- bind_rows(input_independent_list)
     fwrite(input_independent, paste0(mapping_file_directory, "input_independent.csv"))
-    
+
     input_iteration <- bind_rows(input_iteration_list)
     fwrite(input_iteration, paste0(mapping_file_directory, "input_iteration.csv"))
-    
+
     input_robustness <- bind_rows(input_robustness_list)
     fwrite(input_robustness, paste0(mapping_file_directory, "input_robustness.csv"))
 }
 
-# Internal dynamics 
+# Internal dynamics
 input_internal <- make_input_csv(exp_id = "f1_additive-simple_screening-1-internal", n_wells = 1, n_transfer = 20, n_transfer_selection = 10, composition_lograte = 10)
 input_internal$output_dir <- data_directory
 input_internal[is.na(input_internal)] <- "NA"
