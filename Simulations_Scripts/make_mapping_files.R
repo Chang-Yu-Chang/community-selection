@@ -4,7 +4,7 @@ suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
 test_small_set <- F
-pool_csv <- T
+pool_csv <- F
 seeds = 1:20 # Random seed. Default 1:100
 #time_stamp <- paste0(sprintf("%03d", round(((as.numeric(Sys.time()) * 12345) %% 1000))), "-")
 time_stamp <- ""
@@ -12,7 +12,8 @@ cat("\nTotal seeds are = ", seeds, "\n")
 #data_directory = "../Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
-list_selected_functions <- c("f1_additive", "f1a_additive", "f2_interaction", "f2a_interaction", "f6_target_resource") %>% setNames(1:length(.))
+#list_selected_functions <- c("f1_additive", "f1a_additive", "f1b_additive_cost", "f2_interaction", "f2a_interaction", "f6_target_resource") %>% setNames(1:length(.))
+list_selected_functions <- c("f1b_additive_cost") %>% setNames(1:length(.))
 #list_selected_functions <- c("f5_invader_growth") %>% setNames(1:length(.))
 
 make_input_csv <- function(...){
@@ -285,7 +286,11 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     df$l <- l
     df[is.na(df)] <- "NA"
     df$exp_id <- paste0(time_stamp, df$exp_id)
-
+    if (selected_function == "f1b_additive_cost") {
+        df$selected_function <- "f1_additive"
+        df$cost_mean <- 0.05
+        df$cost_sd <- 0.01
+    }
     return(df)
 }
 input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
@@ -362,6 +367,11 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
     df[is.na(df)] <- "NA"
     df$selected_function <- selected_function
     df$exp_id <- paste0(time_stamp, df$exp_id)
+    if (selected_function == "f1b_additive_cost") {
+        df$selected_function <- "f1_additive"
+        df$cost_mean <- 0.05
+        df$cost_sd <- 0.01
+    }
     return(df)
 }
 input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_medium = T, l = 0) {
@@ -426,6 +436,11 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_
     df[is.na(df)] <- "NA"
     df$selected_function <- selected_function
     df$exp_id <- paste0(time_stamp, df$exp_id)
+    if (selected_function == "f1b_additive_cost") {
+        df$selected_function <- "f1_additive"
+        df$cost_mean <- 0.05
+        df$cost_sd <- 0.01
+    }
     return(df)
 }
 input_independent_list <- rep(list(rep(list(NA), length(seeds))), length(list_selected_functions))
