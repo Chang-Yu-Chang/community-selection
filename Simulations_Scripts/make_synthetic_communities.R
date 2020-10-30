@@ -8,8 +8,9 @@ input_csv <- args[1] # Input iteration csv
 
 df_input <- fread(input_csv) %>% as_tibble
 seeds <- unique(df_input$seed)
-selected_function <- unique(df_input$selected_function)
+#selected_function <- unique(df_input$selected_function)
 data_directory <- unique(df_input$output_dir)
+name_prefix <- strsplit(data_directory, split = "/")[[1]] %>% `[`(length(.)) %>% gsub("(iteration_)|(independent_)|(robustness_)", "", .)
 
 for (seed in seeds){
     for (protocol in c("iteration_simple_screening", paste0("iteration_", 1:7))){
@@ -21,7 +22,7 @@ for (seed in seeds){
         
         
         # Find high performing isolates; read monoculture data 
-        df_mono <- fread(paste0(sub("iteration", "independent", data_directory), selected_function, "-monoculture-", seed, "_function.txt")) %>% as_tibble
+        df_mono <- fread(paste0(sub("iteration", "independent", data_directory), name_prefix, "-monoculture-", seed, "_function.txt")) %>% as_tibble
         df_per_capita <- df_mono %>%
             filter(Transfer == 0) %>%
             mutate(PerCapitaFunction = CommunityPhenotype / Biomass,
