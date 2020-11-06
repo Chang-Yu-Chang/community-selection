@@ -12,8 +12,9 @@ cat("\nSeeds = ", seeds, "\n")
 #data_directory = "../Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
-#list_selected_functions <- c("f1_additive", "f1a_additive", "f2_interaction", "f2a_interaction", "f6_target_resource") %>% setNames(1:length(.))
-list_selected_functions <- c("f5_invader_growth") %>% setNames(1:length(.))
+list_selected_functions <- c("f1_additive", "f1a_additive", "f1b_additive_cost", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource") %>% setNames(1:length(.))
+#list_selected_functions <- c("f5_invader_suppression") %>% setNames(1:length(.))
+#list_selected_functions <- c("f1b_additive_cost") %>% setNames(1:length(.))
 
 make_input_csv <- function(...){
     args = list(...)
@@ -231,13 +232,13 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     # Directed selection
     ## Knock out
     df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", knock_out = TRUE, composition_lograte = 1, seed = i) %>%
-            mutate(exp_id = paste(selected_function, "knock_out", i, sep = "-")))
+                        mutate(exp_id = paste(selected_function, "knock_out", i, sep = "-")))
 
     ## Knockin
     knock_in_threshold <- c(0, 0.95)
     for (j in 1:length(knock_in_threshold)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", knock_in = TRUE, knock_in_threshold = knock_in_threshold[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "knock_in", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "knock_in", j, i, sep = "-")))
     }
 
     ## Bottleneck
@@ -245,15 +246,15 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     bottleneck_size <- c(-5:-1 %>% 10^., 1e-6, 2e-6, 4e-6, 8e-6 , 1.6e-5,3.2e-5,6.4e-5,1.28e-4, 2.56e-4,5.12e-4, 1.024e-3, 5e-7, 2.5e-7, 1.25e-7)
     for (j in 1:length(bottleneck_size)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function,protocol = "directed_selection", bottleneck = TRUE, bottleneck_size = bottleneck_size[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "bottleneck", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "bottleneck", j, i, sep = "-")))
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "select_top25", bottleneck = TRUE, bottleneck_size = bottleneck_size[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "bottleneck_select_top25", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "bottleneck_select_top25", j, i, sep = "-")))
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "select_top10", bottleneck = TRUE, bottleneck_size = bottleneck_size[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "bottleneck_select_top10", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "bottleneck_select_top10", j, i, sep = "-")))
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "pool_top25", bottleneck = TRUE, bottleneck_size = bottleneck_size[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "bottleneck_pool_top25", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "bottleneck_pool_top25", j, i, sep = "-")))
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "pool_top10", bottleneck = TRUE, bottleneck_size = bottleneck_size[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "bottleneck_pool_top10", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "bottleneck_pool_top10", j, i, sep = "-")))
     }
 
     ## Migration
@@ -261,14 +262,14 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     n_migration <- rep(1000000, length(s_migration))
     for (j in 1:length(s_migration)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", migration = TRUE, s_migration = s_migration[j], n_migration = n_migration[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "migration", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "migration", j, i, sep = "-")))
     }
 
     ## Coalescence
     frac_coalescence <- c(0.5)
     for (j in 1:length(frac_coalescence)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", coalescence = TRUE, frac_coalescence = frac_coalescence[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "coalescence", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "coalescence", j, i, sep = "-")))
 
     }
 
@@ -277,7 +278,7 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     r_type <- rep("add", length(r_percent)) # resource type is resource_add by default
     for (j in 1:length(r_percent)) {
         df <- bind_rows(df, make_input_csv(selected_function = selected_function, protocol = "directed_selection", resource_shift = TRUE, r_type = r_type[j], r_percent = r_percent[j], seed = i) %>%
-                mutate(exp_id = paste(selected_function, "resource_shift", j, i, sep = "-")))
+                            mutate(exp_id = paste(selected_function, "resource_shift", j, i, sep = "-")))
     }
 
     df$output_dir <- paste0(data_directory, "independent_", selected_function, "/")
@@ -285,6 +286,11 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     df$l <- l
     df[is.na(df)] <- "NA"
     df$exp_id <- paste0(time_stamp, df$exp_id)
+    if (selected_function == "f1b_additive_cost") {
+        df$selected_function <- "f1_additive"
+        df$cost_mean <- 0.05
+        df$cost_sd <- 0.01
+    }
 
     return(df)
 }
@@ -336,7 +342,7 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
                 temp <- make_input_csv(exp_id = exp_id, protocol = "directed_selection", bottleneck = TRUE, bottleneck_size = bottleneck_size, seed = i)
             } else if (seq_ds[j] == "bottleneck-and-migration") {
                 temp <- make_input_csv(exp_id = exp_id, protocol = "directed_selection", bottleneck = TRUE, bottleneck_size = bottleneck_size,
-                    migration = migration, s_migration = s_migration, n_migration = n_migration, seed = i)
+                                       migration = migration, s_migration = s_migration, n_migration = n_migration, seed = i)
             }
 
             # Remove stabilization phase
@@ -362,6 +368,11 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
     df[is.na(df)] <- "NA"
     df$selected_function <- selected_function
     df$exp_id <- paste0(time_stamp, df$exp_id)
+    if (selected_function == "f1b_additive_cost") {
+        df$selected_function <- "f1_additive"
+        df$cost_mean <- 0.05
+        df$cost_sd <- 0.01
+    }
     return(df)
 }
 input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_medium = T, l = 0) {
@@ -426,6 +437,11 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_
     df[is.na(df)] <- "NA"
     df$selected_function <- selected_function
     df$exp_id <- paste0(time_stamp, df$exp_id)
+    if (selected_function == "f1b_additive_cost") {
+        df$selected_function <- "f1_additive"
+        df$cost_mean <- 0.05
+        df$cost_sd <- 0.01
+    }
     return(df)
 }
 input_independent_list <- rep(list(rep(list(NA), length(seeds))), length(list_selected_functions))
@@ -459,6 +475,12 @@ for (k in 1:length(list_selected_functions)) {
         input_independent$n_wells <- 5
         input_iteration$n_wells <- 5
         input_robustness$n_wells <- 5
+        input_independent$rn <- 20
+        input_iteration$rn <- 20
+        input_robustness$rn <- 20
+        #input_independent$S <- 10
+        #input_iteration$S <- 10
+        #input_robustness$S <- 10
         input_independent$sn <- 100
         input_iteration$sn <- 100
         input_robustness$sn <- 100
