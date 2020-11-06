@@ -10,9 +10,10 @@ seeds = 1:20 # Random seed. Default 1:100
 time_stamp <- ""
 cat("\nTotal seeds are = ", seeds, "\n")
 #data_directory = "../Data/test/"
-data_directory = "/home/cc2553/project/community-selection/data/"
+#data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
-list_selected_functions <- c("f1_additive", "f1a_additive", "f1b_additive_cost", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource") %>% setNames(1:length(.))
+#list_selected_functions <- c("f1_additive", "f1a_additive", "f1b_additive_cost", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource") %>% setNames(1:length(.))
+list_selected_functions <- c("f1_additive") %>% setNames(1:length(.))
 
 make_input_csv <- function(...){
     args = list(...)
@@ -46,6 +47,11 @@ make_input_csv <- function(...){
             n_propagation = 1, # Incubation time
             n_transfer = 40, #Number of Transfers total number of transfers
             n_transfer_selection = 20, #Number of tranfers implementing selection regime
+            metacommunity_sampling = "Power", # {"Power", "Lognormal", "Default"} Sampling method for initial metacommunity
+            power_alpha = NA, # Default = 0.01
+            lognormal_mean = NA, # Default = 8
+            lognormal_sigma = NA, # Default = 8
+
 
             #Paramaters for community function, #paramaters that determine properties of function
 
@@ -492,6 +498,22 @@ for (k in 1:length(list_selected_functions)) {
     fwrite(input_iteration, paste0(mapping_file_directory, paste0("input_iteration_", list_selected_functions[k],".csv")))
     fwrite(input_robustness, paste0(mapping_file_directory, paste0("input_robustness_", list_selected_functions[k],".csv")))
 }
+
+
+input_independent_sampling <- bind_rows(
+    make_input_csv(seed = 1, metacommunity_sampling = "Power", power_alpha = 0.01), # Default = 0.01
+    make_input_csv(seed = 1, metacommunity_sampling = "Lognormal", lognormal_mean = 8, lognormal_sigma = 8)
+    )
+if (TRUE) {
+    input_independent_sampling$n_wells = 5
+    input_independent_sampling$n_transfer = 10
+    input_independent_sampling$n_transfer_selection = 5
+    input_independent_sampling$composition_lograte = 1
+    input_independent_sampling$rn = 20
+    input_independent_sampling$sn = 100
+}
+
+fwrite(input_independent_sampling, file = "../Data/Mapping_Files/input_independent_sampling_f1_additive.csv")
 
 
 if (pool_csv) {
