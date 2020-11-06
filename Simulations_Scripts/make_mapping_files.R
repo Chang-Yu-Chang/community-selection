@@ -3,18 +3,16 @@
 suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
-test_small_set <- T
-pool_csv <- F
-seeds = 1:2 # Random seed. Default 1:100
+test_small_set <- F
+pool_csv <- T
+seeds = 1:20 # Random seed. Default 1:100
 #time_stamp <- paste0(sprintf("%03d", round(((as.numeric(Sys.time()) * 12345) %% 1000))), "-")
 time_stamp <- ""
-cat("\nSeeds = ", seeds, "\n")
+cat("\nTotal seeds are = ", seeds, "\n")
 #data_directory = "../Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_selected_functions <- c("f1_additive", "f1a_additive", "f1b_additive_cost", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource") %>% setNames(1:length(.))
-#list_selected_functions <- c("f5_invader_suppression") %>% setNames(1:length(.))
-#list_selected_functions <- c("f1b_additive_cost") %>% setNames(1:length(.))
 
 make_input_csv <- function(...){
     args = list(...)
@@ -288,10 +286,9 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
     df$exp_id <- paste0(time_stamp, df$exp_id)
     if (selected_function == "f1b_additive_cost") {
         df$selected_function <- "f1_additive"
-        df$cost_mean <- 0.05
-        df$cost_sd <- 0.01
+        df$cost_mean <- "0.05"
+        df$cost_sd <- "0.01"
     }
-
     return(df)
 }
 input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
@@ -370,8 +367,8 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
     df$exp_id <- paste0(time_stamp, df$exp_id)
     if (selected_function == "f1b_additive_cost") {
         df$selected_function <- "f1_additive"
-        df$cost_mean <- 0.05
-        df$cost_sd <- 0.01
+        df$cost_mean <- "0.05"
+        df$cost_sd <- "0.01"
     }
     return(df)
 }
@@ -439,8 +436,8 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_
     df$exp_id <- paste0(time_stamp, df$exp_id)
     if (selected_function == "f1b_additive_cost") {
         df$selected_function <- "f1_additive"
-        df$cost_mean <- 0.05
-        df$cost_sd <- 0.01
+        df$cost_mean <- "0.05"
+        df$cost_sd <- "0.01"
     }
     return(df)
 }
@@ -498,15 +495,15 @@ for (k in 1:length(list_selected_functions)) {
 
 
 if (pool_csv) {
-    # cat("\nMaking input_independent_", list_selected_functions, "\n")
-    # cat("\nMaking input_iteration.csv\n")
-    # cat("\nMaking input_robusntess.csv\n")
+    cat("\nMaking pooled input_independent.csv\n")
     input_independent <- bind_rows(input_independent_list)
     fwrite(input_independent, paste0(mapping_file_directory, "input_independent.csv"))
 
+    cat("\nMaking pooled input_iteration.csv\n")
     input_iteration <- bind_rows(input_iteration_list)
     fwrite(input_iteration, paste0(mapping_file_directory, "input_iteration.csv"))
 
+    cat("\nMaking pooled input_robusntess.csv\n")
     input_robustness <- bind_rows(input_robustness_list)
     fwrite(input_robustness, paste0(mapping_file_directory, "input_robustness.csv"))
 }

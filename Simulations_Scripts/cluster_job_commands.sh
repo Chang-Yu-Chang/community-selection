@@ -63,7 +63,8 @@ refresh_ecoprospector() {
 
 # Make joblist
 make_joblist(){
-    python ~/project/community-selection/wrapper/make_joblist.py $1 $2 $3
+    #python ~/project/community-selection/wrapper/make_joblist.py $1 $2 $3
+    python ~/Desktop/Lab/community-selection/Simulations_Scripts/make_joblist.py $1 $2 $3
 }
 #make_joblist input_independent.csv
 

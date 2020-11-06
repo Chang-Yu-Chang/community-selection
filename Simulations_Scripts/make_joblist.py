@@ -14,6 +14,8 @@ import csv
 simulation_job_type = str(sys.argv[1]) # Output file name
 input_csv = str(sys.argv[2]) # Input file 
 output_joblist = str(sys.argv[3]) # Output file name
+iteration_rounds = range(1, 24)
+#iteration_rounds = range(1, 24)
 cluster_envir_string = "source activate py37_dev; "
 commandline_tool = "ecoprospector "
 list_protocols = ["simple_screening"] + ["iteration_"+str(i) for i in range(1,8)]
@@ -88,8 +90,11 @@ elif simulation_job_type == "iteration":
             # Iteration protocols
             if len(temp_index) != 1:
                 line_temp = ""
+                exp_id_all = [df_input[i][3] for i in range(len(df_input))]
+                exp_id = [exp_id_all[i] for i in temp_index]
                 for k in range(len(temp_index)):
-                    line_temp = line_temp + commandline_tool + input_csv + " " + str(temp_index[k]) + "; "
+                    if exp_id[k].split("-")[1].split("_")[2] in ["round" + str(i) for i in iteration_rounds]: 
+                        line_temp = line_temp + commandline_tool + input_csv + " " + str(temp_index[k]) + "; "
             line = line + line_temp
     
                 
