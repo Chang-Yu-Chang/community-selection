@@ -11,7 +11,7 @@ import sys
 import subprocess
 import csv
 
-simulation_job_type = str(sys.argv[1]) # Output file name
+simulation_job_type = str(sys.argv[1]) # Input csv file type
 input_csv = str(sys.argv[2]) # Input file 
 output_joblist = str(sys.argv[3]) # Output file name
 iteration_rounds = range(1, 24)
@@ -111,32 +111,53 @@ elif simulation_job_type == "iteration":
 
 elif simulation_job_type == "robustness": 
     fout = open(output_joblist, "wt")
-    for ls in range(1, len(list_seeds)+1):
-        for lp in range(len(list_protocols)):
-            line = cluster_envir_string
+    line_initial = cluster_envir_string
+    counter = 0
+    line_temp = cluster_envir_string
+    for i in range(total_experiments):
+        # Monoculture takes longer, run one monoculture in one job
+        if "monoculture" in list_exp_id[i]:
+            line_monoculture = cluster_envir_string + commandline_tool + input_csv + " " + str(i) + ";\n"
+            fout.write(line_monoculture)
+            continue
             
-            ## Find rows of the perturbation protocols
-            temp_index2 = list()
-            for i in range(len(df_input)):
-                temp = list_exp_id[i]
-                if (list_protocols[lp] + "-" + str(ls)) + "-" in temp:
-                    temp_index2.append(i)
-        
-            # Write perturbation protocols
-            line_temp = ""
-            for k in range(len(temp_index2)):
-                line_temp = line_temp + commandline_tool + input_csv + " " + str(temp_index2[k]) + "; "
-            line = line + line_temp
+        line_temp += commandline_tool + input_csv + " " + str(i) + ";"
+        counter += 1
     
-                
-            # Write job per line in the joblist text file
-            line = line + "\n"
+        # Group 10 simulations into one job; if the number of expeirment cannot be fully divided by 10, also print the residue
+        if counter == 5 or i == (total_experiments-1): 
+            counter = 0
+            line_temp += "\n"
+            fout.write(line_temp)
+            line_temp = line_initial
     
-    	# Skip empty job
-            if line == cluster_envir_string + "\n":
-                continue
-            else:
-                fout.write(line)
+    
+    # for ls in range(1, len(list_seeds)+1):
+    #     for lp in range(len(list_protocols)):
+    #         line = cluster_envir_string
+    #         
+    #         ## Find rows of the perturbation protocols
+    #         temp_index2 = list()
+    #         for i in range(len(df_input)):
+    #             temp = list_exp_id[i]
+    #             if (list_protocols[lp] + "-" + str(ls)) + "-" in temp:
+    #                 temp_index2.append(i)
+    #     
+    #         # Write perturbation protocols
+    #         line_temp = ""
+    #         for k in range(len(temp_index2)):
+    #             line_temp = line_temp + commandline_tool + input_csv + " " + str(temp_index2[k]) + "; "
+    #         line = line + line_temp
+    # 
+    #             
+    #         # Write job per line in the joblist text file
+    #         line = line + "\n"
+    # 
+    # 	# Skip empty job
+    #         if line == cluster_envir_string + "\n":
+    #             continue
+    #         else:
+    #             fout.write(line)
             
     fout.close()
 

@@ -5,15 +5,52 @@ suppressWarnings(suppressMessages(library(data.table)))
 
 test_small_set <- F
 pool_csv <- T
+
 seeds = 1:20 # Random seed. Default 1:100
-#time_stamp <- paste0(sprintf("%03d", round(((as.numeric(Sys.time()) * 12345) %% 1000))), "-")
-time_stamp <- ""
 cat("\nTotal seeds are = ", seeds, "\n")
 #data_directory = "../Data/test/"
-#data_directory = "/home/cc2553/project/community-selection/data/"
+data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
-#list_selected_functions <- c("f1_additive", "f1a_additive", "f1b_additive_cost", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource") %>% setNames(1:length(.))
-list_selected_functions <- c("f1_additive") %>% setNames(1:length(.))
+list_treatments <- tibble(
+    exp_id = c("f1_additive",
+               "f1a_additive",
+               "f1b_additive_cost",
+               "f1b_additive_phi1",
+               "f1b_additive_phi2",
+               "f1c_additive_sampling1",
+               "f1c_additive_sampling2",
+               "f1d_additive_medium1",
+               "f1d_additive_medium2",
+               "f2_interaction",
+               "f2a_interaction",
+               "f5_invader_suppression",
+               "f6_target_resource",
+               "f6a_target_resource_medium2"),
+    selected_function = c("f1_additive",
+                          "f1a_additive",
+                          rep("f1_additive", 7),
+                          "f2_interaction",
+                          "f2a_interaction",
+                          "f5_invader_suppression",
+                          "f6_target_resource",
+                          "f6a_target_resource"),
+    rich_medium = c(rep(T, 8), F, rep(T, 5)),
+    l = c(rep(0, 7), 0.5, 0.5, rep(0, 5)),
+    phi_distribution = c(rep("Norm", 4), "Uniform", rep("Norm", 9)),
+    phi_mean = c(rep(0,3), 1, rep(0, 10)),
+    phi_sd = c(rep(1, 14)),
+    phi_lower = c(rep(0, 14)),
+    phi_upper = c(rep(1, 14)),
+    cost_distribution = c(rep("Norm", 2), "Uniform", rep("Norm", 11)),
+    cost_mean = c(rep(0, 14)),
+    cost_sd = c(rep(0, 14)),
+    cost_lower = c(rep(0, 14)),
+    cost_upper = c(rep(1, 14)),
+    metacommunity_sampling = c(rep("Power", 5), "Lognormal", "Default", rep("Power", 7)),
+    power_alpha = rep(0.01, 14),
+    lognormal_mean = rep(8, 14),
+    lognormal_sd = rep(8, 14),
+)
 
 make_input_csv <- function(...){
     args = list(...)
@@ -50,17 +87,24 @@ make_input_csv <- function(...){
             metacommunity_sampling = "Power", # {"Power", "Lognormal", "Default"} Sampling method for initial metacommunity
             power_alpha = NA, # Default = 0.01
             lognormal_mean = NA, # Default = 8
-            lognormal_sigma = NA, # Default = 8
+            lognormal_sd = NA, # Default = 8
 
 
             #Paramaters for community function, #paramaters that determine properties of function
-
-            sigma_func = 1, #Standard deviation for drawing specifc speices/interaction function
-            alpha_func = 1, # Scaling factor between species- and interaction-specific function variances
+            phi_distribution = "Norm", # {"Norm", "Uniform"}
+            phi_mean = 0, #
+            phi_sd = 1, # Standard deviation for drawing specifc speices/interaction function
+            phi_lower = 0,
+            phi_upper = 1,
+            ruggedness = 0.8, # (1-ruggedness) percent of function are set to 0
+            function_ratio = 1, # Scaling factor between species- and interaction-specific function variances
             binary_threshold = 1, #Threshold for binary functions
             g0 = 1, # The baseline conversion factor of biomass per energy
+            cost_distribution = "Norm", # {"Norm", "Uniform"}
             cost_mean = 0, # Mean fraction of cost feeded into a gamma distribution. Suggested up to 0.05
             cost_sd = 0, # Sd fraction of cost feeded into a gamma distribution. cost_sd = 0 if cost_mean = 0, cost_sd= 0.01 if cost_mean >0
+            cost_lower = 0, # Lower bound for cost if cost_distribution="Uniform"
+            cost_upper = 1, # Upper bound for cost if cost_distribution="Uniform"
             target_resource = NA, # Target resource production when selected_function=f6_target_resourece
 
             #Paramaters for Directed Selection (for directed selection protocols that can't be coded up in experiment paramaters)
@@ -210,7 +254,9 @@ make_input_csv <- function(...){
 
     return(output_row)
 }
-input_independent_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
+input_independent_wrapper <- function (i, treatment) {
+    selected_function = treatment$selected_function
+
     list_algorithms <- c(
         "select_top25", "select_top10", "pool_top25", "pool_top10",
         "Blouin2015", "Blouin2015_control", "Jochum2019", "Mueller2019", "Panke_Buisse2015", "Swenson2000a", "Swenson2000a_control", "Swenson2000c", "Wright2019", "Wright2019_control",
@@ -285,19 +331,20 @@ input_independent_wrapper <- function (selected_function = "f1_additive", i, ric
                             mutate(exp_id = paste(selected_function, "resource_shift", j, i, sep = "-")))
     }
 
-    df$output_dir <- paste0(data_directory, "independent_", selected_function, "/")
-    df$rich_medium <- rich_medium
-    df$l <- l
-    df[is.na(df)] <- "NA"
-    df$exp_id <- paste0(time_stamp, df$exp_id)
-    if (selected_function == "f1b_additive_cost") {
-        df$selected_function <- "f1_additive"
-        df$cost_mean <- "0.05"
-        df$cost_sd <- "0.01"
+
+    df$output_dir <- paste0(data_directory, "independent_", treatment$exp_id, "/")
+    df$exp_id <- sub(selected_function, treatment$exp_id, df$exp_id)
+
+    for (j in 3:ncol(treatment)) {
+        df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
     }
+    # df$cost_mean <- as.character(treatment$cost_mean)
+    # df$cost_sd <- as.character(treatment$cost_sd)
+    df[is.na(df)] <- "NA"
     return(df)
 }
-input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_medium = T, l = 0) {
+input_iteration_wrapper <- function (i, treatment) {
+    selected_function = treatment$selected_function
     n_directed_selected <- 20 # Total round of directed selection; default = 20
     n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
     list_seq_ds <- list(
@@ -364,21 +411,19 @@ input_iteration_wrapper <- function (selected_function = "f1_additive", i, rich_
 
     }
 
+    df$output_dir <- paste0(data_directory, "iteration_", treatment$exp_id, "/")
+    df$exp_id <- sub(selected_function, treatment$exp_id, df$exp_id)
 
-    df$output_dir <- paste0(data_directory, "iteration_", selected_function, "/")
-    df$rich_medium <- rich_medium
-    df$l <- l
-    df[is.na(df)] <- "NA"
-    df$selected_function <- selected_function
-    df$exp_id <- paste0(time_stamp, df$exp_id)
-    if (selected_function == "f1b_additive_cost") {
-        df$selected_function <- "f1_additive"
-        df$cost_mean <- "0.05"
-        df$cost_sd <- "0.01"
+    for (j in 3:ncol(treatment)) {
+        df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
     }
+    # df$cost_mean <- as.character(treatment$cost_mean)
+    # df$cost_sd <- as.character(treatment$cost_sd)
+    df[is.na(df)] <- "NA"
     return(df)
 }
-input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_medium = T, l = 0) {
+input_robustness_wrapper <- function(i, treatment) {
+    selected_function = treatment$selected_function
     n_directed_selected <- 20 # Total round of directed selection; default = 20
     n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
     list_protocols <- c("iteration_simple_screening", paste0("iteration_", c(3,5)))
@@ -434,35 +479,27 @@ input_robustness_wrapper <- function(selected_function = "f1_additive", i, rich_
             }
         }
     }
-    df$output_dir <- paste0(data_directory, "robustness_", selected_function, "/")
-    df$rich_medium <- rich_medium
-    df$l <- l
-    df[is.na(df)] <- "NA"
-    df$selected_function <- selected_function
-    df$exp_id <- paste0(time_stamp, df$exp_id)
-    if (selected_function == "f1b_additive_cost") {
-        df$selected_function <- "f1_additive"
-        df$cost_mean <- "0.05"
-        df$cost_sd <- "0.01"
+    df$output_dir <- paste0(data_directory, "robustness_", treatment$exp_id, "/")
+    df$exp_id <- sub(selected_function, treatment$exp_id, df$exp_id)
+
+    for (j in 3:ncol(treatment)) {
+        df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
     }
+    # df$cost_mean <- as.character(treatment$cost_mean)
+    # df$cost_sd <- as.character(treatment$cost_sd)
+    df[is.na(df)] <- "NA"
     return(df)
 }
-input_independent_list <- rep(list(rep(list(NA), length(seeds))), length(list_selected_functions))
-input_iteration_list <- rep(list(rep(list(NA), length(seeds))), length(list_selected_functions))
-input_robustness_list <- rep(list(rep(list(NA), length(seeds))), length(list_selected_functions))
+input_independent_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
+input_iteration_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
+input_robustness_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
 
-for (k in 1:length(list_selected_functions)) {
-    cat("\nMaking csv for", list_selected_functions[k], "\n")
+for (k in 1:nrow(list_treatments)) {
+    cat("\nMaking csv for", list_treatments$exp_id[k], "\n")
 
-    input_independent_list[[k]][[1]] <- input_independent_wrapper(selected_function = list_selected_functions[k], i = 1)
-    input_iteration_list[[k]][[1]] <- input_iteration_wrapper(selected_function = list_selected_functions[k], i = 1)
-    input_robustness_list[[k]][[1]] <- input_robustness_wrapper(selected_function = list_selected_functions[k], i = 1)
-
-    if (list_selected_functions[k] == "f6_target_resource") {
-        input_independent_list[[k]][[1]] <- input_independent_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
-        input_iteration_list[[k]][[1]] <- input_iteration_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
-        input_robustness_list[[k]][[1]] <- input_robustness_wrapper(selected_function = "f6_target_resource", i = 1, rich_medium = T, l = 0.5)
-    }
+    input_independent_list[[k]][[1]] <- input_independent_wrapper(i = 1, treatment = list_treatments[k,])
+    input_iteration_list[[k]][[1]] <- input_iteration_wrapper(i = 1, treatment = list_treatments[k,])
+    input_robustness_list[[k]][[1]] <- input_robustness_wrapper(i = 1, treatment = list_treatments[k,])
 
     for (i in seeds) {
         input_independent_list[[k]][[i]] <- input_independent_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id))
@@ -494,26 +531,10 @@ for (k in 1:length(list_selected_functions)) {
     input_iteration$save_composition <- TRUE
     input_robustness$save_composition <- FALSE
 
-    fwrite(input_independent, paste0(mapping_file_directory, paste0("input_independent_", list_selected_functions[k],".csv")))
-    fwrite(input_iteration, paste0(mapping_file_directory, paste0("input_iteration_", list_selected_functions[k],".csv")))
-    fwrite(input_robustness, paste0(mapping_file_directory, paste0("input_robustness_", list_selected_functions[k],".csv")))
+    fwrite(input_independent, paste0(mapping_file_directory, paste0("input_independent_", list_treatments$exp_id[k],".csv")))
+    fwrite(input_iteration, paste0(mapping_file_directory, paste0("input_iteration_", list_treatments$exp_id[k],".csv")))
+    fwrite(input_robustness, paste0(mapping_file_directory, paste0("input_robustness_", list_treatments$exp_id[k],".csv")))
 }
-
-
-input_independent_sampling <- bind_rows(
-    make_input_csv(seed = 1, metacommunity_sampling = "Power", power_alpha = 0.01), # Default = 0.01
-    make_input_csv(seed = 1, metacommunity_sampling = "Lognormal", lognormal_mean = 8, lognormal_sigma = 8)
-    )
-if (TRUE) {
-    input_independent_sampling$n_wells = 5
-    input_independent_sampling$n_transfer = 10
-    input_independent_sampling$n_transfer_selection = 5
-    input_independent_sampling$composition_lograte = 1
-    input_independent_sampling$rn = 20
-    input_independent_sampling$sn = 100
-}
-
-fwrite(input_independent_sampling, file = "../Data/Mapping_Files/input_independent_sampling_f1_additive.csv")
 
 
 if (pool_csv) {
