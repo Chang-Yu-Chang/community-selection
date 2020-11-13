@@ -3,13 +3,13 @@
 suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
-test_small_set <- F
-pool_csv <- T
+test_small_set <- T
+pool_csv <- F
 
 seeds = 1:20 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
-#data_directory = "../Data/test/"
-data_directory = "/home/cc2553/project/community-selection/data/"
+data_directory = "../Data/test/"
+#data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_treatments <- tibble(
     exp_id = c("f1_additive",
@@ -34,8 +34,8 @@ list_treatments <- tibble(
                           "f5_invader_suppression",
                           "f6_target_resource",
                           "f6a_target_resource"),
-    rich_medium = c(rep(T, 8), F, rep(T, 5)),
-    l = c(rep(0, 7), 0.5, 0.5, rep(0, 5)),
+    rich_medium = c(rep(T, 8), F, rep(T, 4), F),
+    l = c(rep(0, 7), 0.5, 0.5, rep(0, 4), 0.5),
     phi_distribution = c(rep("Norm", 4), "Uniform", rep("Norm", 9)),
     phi_mean = c(rep(0,3), 1, rep(0, 10)),
     phi_sd = c(rep(1, 14)),
@@ -539,15 +539,19 @@ for (k in 1:nrow(list_treatments)) {
 
 if (pool_csv) {
     cat("\nMaking pooled input_independent.csv\n")
-    input_independent <- bind_rows(input_independent_list)
+
+    input_independent <- input_independent_list %>%
+        lapply(rbindlist) %>% rbindlist()
     fwrite(input_independent, paste0(mapping_file_directory, "input_independent.csv"))
 
     cat("\nMaking pooled input_iteration.csv\n")
-    input_iteration <- bind_rows(input_iteration_list)
+    input_iteration <- input_iteration_list %>%
+        lapply(rbindlist) %>% rbindlist()
     fwrite(input_iteration, paste0(mapping_file_directory, "input_iteration.csv"))
 
     cat("\nMaking pooled input_robusntess.csv\n")
-    input_robustness <- bind_rows(input_robustness_list)
+    input_robustness <- input_robustness_list %>%
+        lapply(rbindlist) %>% rbindlist()
     fwrite(input_robustness, paste0(mapping_file_directory, "input_robustness.csv"))
 }
 

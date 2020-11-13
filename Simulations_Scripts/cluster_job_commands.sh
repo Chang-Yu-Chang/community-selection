@@ -16,13 +16,13 @@ upload_to_cluster() {
 download_from_cluster() {
     scp cc2553@transfer-grace.hpc.yale.edu:$1 $2
 }
-#download_from_cluster project/community_selection_project/test.txt ~/Desktop/Lab/ 
+#download_from_cluster project/community_selection_project/test.txt ~/Desktop/Lab/
 
 
 # Download files from cluster over the input_csv list
 download_from_cluster2() {
     scp cc2553@transfer-grace.hpc.yale.edu:$1 $2
-    
+
     list_experiment=$(echo $3 | awk 1? Filter for seed == 1)
     # Have a for loop here
 
@@ -39,7 +39,12 @@ create_wrapper_folder() {
     mkdir ~/project/community-selection/job/$1
     echo "Created ~/project/community-selection/job/$1"
 }
-#make_wrapper_folder independent
+
+create_wrapper_folder2(){
+    create_wrapper_folder independent_$1
+    create_wrapper_folder iteration_$1
+    create_wrapper_folder robustness_$1
+}
 
 # Remove wrapper folder
 remove_wrapper_folder() {
@@ -50,7 +55,13 @@ remove_wrapper_folder() {
     rm -r ~/project/community-selection/job/$1
     echo "Deleted ~/project/community-selection/job/$1"
 }
-#remove_wrapper_folder independent
+
+remove_wrapper_folder2() {
+    remove_wrapper_folder independent_$1
+    remove_wrapper_folder iteration_$1
+    remove_wrapper_folder robustness_$1
+}
+
 
 # Update/refresh the prerequisite for python environment
 refresh_ecoprospector() {
@@ -82,6 +93,22 @@ make_synthetic_communities() {
     Rscript ~/project/community-selection/wrapper/make_synthetic_communities.R $1
 }
 
+make_synthetic_communities2() {
+    source activate py37_dev
+    cd ../iteration_$1
+    make_synthetic_communities input_iteration_$1.csv
+    conda deactivate
+}
+
+# Wrapper files for creating files
+submit_job() {
+    cd ~/project/community-selection/wrapper/$1_$2
+    make_joblist independent input_independent_$1.csv joblist_$1_$2.txt
+    make_sbatch_file joblist_$1_$2.txt 20 24
+    sbatch batch_$1_$2.sh
+}
+
+
 # Wrapper function for cluster command
 print_cluster_commands() {
 x="
@@ -95,7 +122,7 @@ Rscript make_mapping_files.R
 upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_independent_$1.csv project/community-selection/wrapper/independent_$1/
 upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_iteration_$1.csv project/community-selection/wrapper/iteration_$1/
 upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_robustness_$1.csv project/community-selection/wrapper/robustness_$1/
-    
+
 # Cluster independent
 cd ~/project/community-selection/wrapper/independent_$1
 make_joblist independent input_independent_$1.csv joblist_independent_$1.txt
@@ -129,6 +156,25 @@ scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/robus
 echo $x
 }
 
+print_cluster_commands2() {
+x="
+create_wrapper_folder2 $1
+
+upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_independent_$1.csv project/community-selection/wrapper/independent_$1/
+upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_iteration_$1.csv project/community-selection/wrapper/iteration_$1/
+upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_robustness_$1.csv project/community-selection/wrapper/robustness_$1/
+
+submit_job independent $1
+submit_job iteration $1
+make_syntehtic_community2 $1
+submit_job robustness $1
+
+scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/independent_$1/*' ~/Dropbox/community-selection/Data/Raw_Rebuttal/
+scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/iteration_$1/*_function.txt' ~/Dropbox/community-selection/Data/Raw_Rebuttal/
+scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/robustness_$1/*' ~/Dropbox/community-selection/Data/Raw_Rebuttal/
+"
+echo $x
+}
 
 # Count lines in a file
 cl() {
