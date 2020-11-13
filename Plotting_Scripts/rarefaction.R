@@ -26,8 +26,8 @@ calculate_rarefaction_curve <- function(plate_N, sample_sizes = c(5, 1e1, 50, 1e
         }
         cat("\n", i)
     }
-    
-    temp_list %>% 
+
+    temp_list %>%
         rbindlist(idcol = "Replicate") %>%
         return()
 }
@@ -36,12 +36,12 @@ plate_power <- fread("../Data/test/plate_power.txt")
 plate_lognormal <- fread("../Data/test/plate_lognormal.txt")
 plate_default <- fread("../Data/test/plate_default.txt")
 
-rarefaction_power <- calculate_rarefaction_curve(plate_power) 
-rarefaction_lognormal <- calculate_rarefaction_curve(plate_lognormal) 
-rarefaction_default <- calculate_rarefaction_curve(plate_default) 
-    
+rarefaction_power <- calculate_rarefaction_curve(plate_power)
+rarefaction_lognormal <- calculate_rarefaction_curve(plate_lognormal)
+rarefaction_default <- calculate_rarefaction_curve(plate_default)
 
-p1 <- rarefaction_power %>% 
+
+p1 <- rarefaction_power %>%
     group_by(Community, SampleSize) %>%
     summarize(MeanRichness = mean(Richness)) %>%
     ggplot(aes(x = SampleSize, y = MeanRichness, color = Community)) +
@@ -50,7 +50,7 @@ p1 <- rarefaction_power %>%
     guides(color = F) +
     ggtitle("Power")
 
-p2 <- rarefaction_lognormal %>% 
+p2 <- rarefaction_lognormal %>%
     group_by(Community, SampleSize) %>%
     summarize(MeanRichness = mean(Richness)) %>%
     ggplot(aes(x = SampleSize, y = MeanRichness, color = Community)) +
@@ -58,8 +58,8 @@ p2 <- rarefaction_lognormal %>%
     theme_cowplot() +
     guides(color = F) +
     ggtitle("Lognormal")
-    
-p3 <- rarefaction_default %>% 
+
+p3 <- rarefaction_default %>%
     group_by(Community, SampleSize) %>%
     summarize(MeanRichness = mean(Richness)) %>%
     ggplot(aes(x = SampleSize, y = MeanRichness, color = Community)) +

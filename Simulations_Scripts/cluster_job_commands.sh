@@ -74,8 +74,8 @@ refresh_ecoprospector() {
 
 # Make joblist
 make_joblist(){
-    #python ~/project/community-selection/wrapper/make_joblist.py $1 $2 $3
-    python ~/Desktop/Lab/community-selection/Simulations_Scripts/make_joblist.py $1 $2 $3
+    python ~/project/community-selection/wrapper/make_joblist.py $1 $2 $3
+    #python ~/Desktop/Lab/community-selection/Simulations_Scripts/make_joblist.py $1 $2 $3
 }
 #make_joblist input_independent.csv
 
@@ -103,7 +103,7 @@ make_synthetic_communities2() {
 # Wrapper files for creating files
 submit_job() {
     cd ~/project/community-selection/wrapper/$1_$2
-    make_joblist independent input_independent_$1.csv joblist_$1_$2.txt
+    make_joblist $1 input_$1_$2.csv joblist_$1_$2.txt
     make_sbatch_file joblist_$1_$2.txt 20 24
     sbatch batch_$1_$2.sh
 }
@@ -166,7 +166,7 @@ upload_to_cluster ~/Desktop/Lab/community-selection/Data/Mapping_Files/input_rob
 
 submit_job independent $1
 submit_job iteration $1
-make_syntehtic_community2 $1
+make_synthetic_communities2 $1
 submit_job robustness $1
 
 scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/independent_$1/*' ~/Dropbox/community-selection/Data/Raw_Rebuttal/

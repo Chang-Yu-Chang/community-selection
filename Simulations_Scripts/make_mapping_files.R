@@ -3,8 +3,8 @@
 suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
-test_small_set <- T
-pool_csv <- F
+test_small_set <- F
+pool_csv <- T
 
 seeds = 1:20 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
@@ -36,7 +36,7 @@ list_treatments <- tibble(
                           "f6a_target_resource"),
     rich_medium = c(rep(T, 8), F, rep(T, 4), F),
     l = c(rep(0, 7), 0.5, 0.5, rep(0, 4), 0.5),
-    phi_distribution = c(rep("Norm", 4), "Uniform", rep("Norm", 9)),
+    phi_distribution = c(rep("Norm", 2), "Uniform", "Norm", "Uniform", rep("Norm", 9)),
     phi_mean = c(rep(0,3), 1, rep(0, 10)),
     phi_sd = c(rep(1, 14)),
     phi_lower = c(rep(0, 14)),
@@ -512,9 +512,9 @@ for (k in 1:nrow(list_treatments)) {
     input_robustness <- rbindlist(input_robustness_list[[k]])
 
     if (test_small_set) {
-        input_independent$n_wells <- 5
-        input_iteration$n_wells <- 5
-        input_robustness$n_wells <- 5
+        input_independent$n_wells <- 10
+        input_iteration$n_wells <- 10
+        input_robustness$n_wells <- 10
         input_independent$rn <- 20
         input_iteration$rn <- 20
         input_robustness$rn <- 20
