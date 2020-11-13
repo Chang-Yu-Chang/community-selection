@@ -119,6 +119,12 @@ cd ~/project/community-selection/wrapper/robustness_$1
 make_joblist independent input_robustness_$1.csv joblist_robustness_$1.txt
 make_sbatch_file joblist_robustness_$1.txt 10 10
 sbatch batch_robustness_$1.sh
+
+# Download
+scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/independent_$1/*' ~/Dropbox/community-selection/Data/Raw_Rebuttal/
+scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/iteration_$1/*_function.txt' ~/Dropbox/community-selection/Data/Raw_Rebuttal/
+scp 'cc2553@transfer-grace.hpc.yale.edu:~/project/community-selection/data/robustness_$1/*' ~/Dropbox/community-selection/Data/Raw_Rebuttal/
+
 "
 echo $x
 }
