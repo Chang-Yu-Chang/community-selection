@@ -8,8 +8,8 @@ pool_csv <- T
 
 seeds = 1:20 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
-data_directory = "../Data/test/"
-#data_directory = "/home/cc2553/project/community-selection/data/"
+#data_directory = "../Data/test/"
+data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_treatments <- tibble(
     exp_id = c("f1_additive",
@@ -21,6 +21,8 @@ list_treatments <- tibble(
                "f1c_additive_sampling2",
                "f1d_additive_medium1",
                "f1d_additive_medium2",
+               "f1e_additive_response1",
+               "f1e_additive_response2",
                "f2_interaction",
                "f2a_interaction",
                "f5_invader_suppression",
@@ -28,30 +30,32 @@ list_treatments <- tibble(
                "f6a_target_resource_medium2"),
     selected_function = c("f1_additive",
                           "f1a_additive",
-                          rep("f1_additive", 7),
+                          rep("f1_additive", 9),
                           "f2_interaction",
                           "f2a_interaction",
                           "f5_invader_suppression",
                           "f6_target_resource",
                           "f6a_target_resource"),
-    rich_medium = c(rep(T, 8), F, rep(T, 4), F),
-    l = c(rep(0, 7), 0.5, 0.5, rep(0, 4), 0.5),
-    phi_distribution = c(rep("Norm", 2), "Uniform", "Norm", "Uniform", rep("Norm", 9)),
-    phi_mean = c(rep(0,3), 1, rep(0, 10)),
-    phi_sd = c(rep(1, 14)),
-    phi_lower = c(rep(0, 14)),
-    phi_upper = c(rep(1, 14)),
-    cost_distribution = c(rep("Norm", 2), "Uniform", rep("Norm", 11)),
-    cost_mean = c(rep(0, 14)),
-    cost_sd = c(rep(0, 14)),
-    cost_lower = c(rep(0, 14)),
-    cost_upper = c(rep(1, 14)),
-    metacommunity_sampling = c(rep("Power", 5), "Lognormal", "Default", rep("Power", 7)),
-    power_alpha = rep(0.01, 14),
-    lognormal_mean = rep(8, 14),
-    lognormal_sd = rep(8, 14),
+    rich_medium = c(rep(T, 8), F, rep(T, 6), F),
+    l = c(rep(0, 7), 0.5, 0.5, rep(0, 6), 0.5),
+    dilution = c(rep(0.001, 8), 0.1, rep(0.001, 6), 0.1),
+    n_propagation = c(rep(1, 8), 5, rep(1, 6), 5),
+    phi_distribution = c(rep("Norm", 2), "Uniform", "Norm", "Uniform", rep("Norm", 11)),
+    phi_mean = c(rep(0,3), 1, rep(0, 12)),
+    phi_sd = c(rep(1, 16)),
+    phi_lower = c(rep(0, 16)),
+    phi_upper = c(rep(1, 16)),
+    cost_distribution = c(rep("Norm", 2), "Uniform", rep("Norm", 13)),
+    cost_mean = c(rep(0, 16)),
+    cost_sd = c(rep(0, 16)),
+    cost_lower = c(rep(0, 16)),
+    cost_upper = c(rep(1, 16)),
+    metacommunity_sampling = c(rep("Power", 5), "Lognormal", "Default", rep("Power", 9)),
+    power_alpha = rep(0.01, 16),
+    lognormal_mean = rep(8, 16),
+    lognormal_sd = rep(8, 16),
+    response = c(rep("type III", 9), "type I", "type II", rep("type III", 5))
 )
-
 make_input_csv <- function(...){
     args = list(...)
 
