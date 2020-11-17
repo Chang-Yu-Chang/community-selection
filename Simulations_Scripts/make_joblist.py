@@ -62,7 +62,7 @@ if simulation_job_type == "independent":
         counter += 1
     
         # Group 10 simulations into one job; if the number of expeirment cannot be fully divided by 10, also print the residue
-        if counter == 10 or i == (total_experiments-1): 
+        if counter == 5 or i == (total_experiments-1): 
             counter = 0
             line_temp += "\n"
             fout.write(line_temp)

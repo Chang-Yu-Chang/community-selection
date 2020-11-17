@@ -95,7 +95,7 @@ make_synthetic_communities() {
 
 make_synthetic_communities2() {
     source activate py37_dev
-    cd ../iteration_$1
+    cd ~/project/community-selection/wrapper/iteration_$1
     make_synthetic_communities input_iteration_$1.csv
     conda deactivate
 }
@@ -181,6 +181,10 @@ cl() {
     cat $1 | wc -l
 }
 
+# Check mapping file selected function
+check_mapping_files() {
+sed -n 2p ~/project/community-selection/wrapper/$1_$2/input_$1_$2.csv | awk -F "," '{ print $1 }'
+}
 
 # check data
 lldata() {

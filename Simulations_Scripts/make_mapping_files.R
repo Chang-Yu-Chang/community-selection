@@ -12,30 +12,14 @@ cat("\nTotal seeds are = ", seeds, "\n")
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_treatments <- tibble(
-    exp_id = c("f1_additive",
-               "f1a_additive",
-               "f1b_additive_cost",
-               "f1b_additive_phi1",
-               "f1b_additive_phi2",
-               "f1c_additive_sampling1",
-               "f1c_additive_sampling2",
-               "f1d_additive_medium1",
-               "f1d_additive_medium2",
-               "f1e_additive_response1",
-               "f1e_additive_response2",
-               "f2_interaction",
-               "f2a_interaction",
-               "f5_invader_suppression",
-               "f6_target_resource",
+    exp_id = c("f1_additive", "f1a_additive", "f1b_additive_cost", "f1b_additive_phi1", "f1b_additive_phi2",
+               "f1c_additive_sampling1", "f1c_additive_sampling2", "f1d_additive_medium1", "f1d_additive_medium2", "f1e_additive_response1",
+               "f1e_additive_response2", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource",
                "f6a_target_resource_medium2"),
-    selected_function = c("f1_additive",
-                          "f1a_additive",
-                          rep("f1_additive", 9),
-                          "f2_interaction",
-                          "f2a_interaction",
-                          "f5_invader_suppression",
-                          "f6_target_resource",
-                          "f6a_target_resource"),
+    selected_function = c("f1_additive", "f1a_additive", rep("f1_additive", 9),
+                          "f2_interaction", "f2a_interaction",
+                          "f5_invader_suppression","f6_target_resource","f6a_target_resource"),
+    ruggedness = c(NA, 0.8, rep(NA, 10), 0.8, rep(NA, 3)),
     rich_medium = c(rep(T, 8), F, rep(T, 6), F),
     l = c(rep(0, 7), 0.5, 0.5, rep(0, 6), 0.5),
     dilution = c(rep(0.001, 8), 0.1, rep(0.001, 6), 0.1),
@@ -367,7 +351,7 @@ input_iteration_wrapper <- function (i, treatment) {
     df <- make_input_csv(); df <- df[-1,]
 
     # Screen
-    df <- bind_rows(df, make_input_csv(seed = i, exp_id = paste0(selected_function, "-iteration_simple_screening-", i)))
+    df <- bind_rows(df, make_input_csv(seed = i, exp_id = paste0(treatment$exp_id, "-iteration_simple_screening-", i)))
 
     # Iterative protocols
     for (k in 1:length(list_seq_ds)) {
@@ -384,7 +368,7 @@ input_iteration_wrapper <- function (i, treatment) {
         # Iterations
         for (j in 1:length(seq_ds)) {
             # Output file id
-            exp_id <- paste0(selected_function, "-iteration_", k, "_round", j, "-", i)
+            exp_id <- paste0(treatment$exp_id, "-iteration_", k, "_round", j, "-", i)
 
 
             # Make the protocol
@@ -405,7 +389,7 @@ input_iteration_wrapper <- function (i, treatment) {
             temp$composition_lograte <- n_transfer_round/2
 
             # If not the first round, overwrite the plate by previous round, write the plate
-            if (j>=2) temp$overwrite_plate <- paste0(data_directory, "iteration_", selected_function, "/", paste0(selected_function, "-iteration_", k, "_round", j-1, "-", i, "_composition.txt"))
+            if (j>=2) temp$overwrite_plate <- paste0(data_directory, "iteration_", treatment$exp_id, "/", treatment$exp_id, "-iteration_", k, "_round", j-1, "-", i, "_composition.txt")
 
             # Overerite_plate is at equilibrium so it has to be passaged one more times before starting the next expeirmental round
             if (!is.na(temp$overwrite_plate)) temp$passage_overwrite_plate <- "True"
@@ -417,6 +401,7 @@ input_iteration_wrapper <- function (i, treatment) {
 
     df$output_dir <- paste0(data_directory, "iteration_", treatment$exp_id, "/")
     df$exp_id <- sub(selected_function, treatment$exp_id, df$exp_id)
+    df$selected_function <- selected_function
 
     for (j in 3:ncol(treatment)) {
         df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
@@ -485,6 +470,7 @@ input_robustness_wrapper <- function(i, treatment) {
     }
     df$output_dir <- paste0(data_directory, "robustness_", treatment$exp_id, "/")
     df$exp_id <- sub(selected_function, treatment$exp_id, df$exp_id)
+    df$selected_function <- selected_function
 
     for (j in 3:ncol(treatment)) {
         df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
@@ -494,6 +480,7 @@ input_robustness_wrapper <- function(i, treatment) {
     df[is.na(df)] <- "NA"
     return(df)
 }
+
 input_independent_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
 input_iteration_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
 input_robustness_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
@@ -507,7 +494,9 @@ for (k in 1:nrow(list_treatments)) {
 
     for (i in seeds) {
         input_independent_list[[k]][[i]] <- input_independent_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id))
-        input_iteration_list[[k]][[i]] <- input_iteration_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id), overwrite_plate = sub("-\\d_composition.txt$", paste0("-", i, "_composition.txt"), overwrite_plate))
+        input_iteration_list[[k]][[i]] <- input_iteration_list[[k]][[1]] %>%
+            mutate(seed = i, exp_id = sub("-\\d$", paste0("-", i), exp_id),
+                   overwrite_plate = sub("-\\d_composition.txt$", paste0("-", i, "_composition.txt"), overwrite_plate))
         input_robustness_list[[k]][[i]] <- input_robustness_list[[k]][[1]] %>% mutate(seed = i, exp_id = sub("-\\d-s", paste0("-", i, "-s"), exp_id), overwrite_plate = sub("-\\d-s", paste0("-", i, "-s"), overwrite_plate))
     }
 
@@ -543,7 +532,6 @@ for (k in 1:nrow(list_treatments)) {
 
 if (pool_csv) {
     cat("\nMaking pooled input_independent.csv\n")
-
     input_independent <- input_independent_list %>%
         lapply(rbindlist) %>% rbindlist()
     fwrite(input_independent, paste0(mapping_file_directory, "input_independent.csv"))
