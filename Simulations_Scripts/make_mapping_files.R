@@ -8,38 +8,42 @@ pool_csv <- T
 
 seeds = 1:20 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
-#data_directory = "../Data/test/"
+#data_directory = "~/Desktop/Lab/community-selection/Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_treatments <- tibble(
     exp_id = c("f1_additive", "f1a_additive", "f1b_additive_cost", "f1b_additive_phi1", "f1b_additive_phi2",
                "f1c_additive_sampling1", "f1c_additive_sampling2", "f1d_additive_medium1", "f1d_additive_medium2", "f1e_additive_response1",
-               "f1e_additive_response2", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource",
-               "f6a_target_resource_medium2"),
+               "f1e_additive_response2", "f2_interaction", "f2a_interaction", "f5_invader_suppression", "f6_target_resource"),
     selected_function = c("f1_additive", "f1a_additive", rep("f1_additive", 9),
                           "f2_interaction", "f2a_interaction",
-                          "f5_invader_suppression","f6_target_resource","f6a_target_resource"),
-    ruggedness = c(NA, 0.8, rep(NA, 10), 0.8, rep(NA, 3)),
-    rich_medium = c(rep(T, 8), F, rep(T, 6), F),
-    l = c(rep(0, 7), 0.5, 0.5, rep(0, 6), 0.5),
-    dilution = c(rep(0.001, 8), 0.1, rep(0.001, 6), 0.1),
-    n_propagation = c(rep(1, 8), 5, rep(1, 6), 5),
-    phi_distribution = c(rep("Norm", 2), "Uniform", "Norm", "Uniform", rep("Norm", 11)),
-    phi_mean = c(rep(0,3), 1, rep(0, 12)),
-    phi_sd = c(rep(1, 16)),
-    phi_lower = c(rep(0, 16)),
-    phi_upper = c(rep(1, 16)),
-    cost_distribution = c(rep("Norm", 2), "Uniform", rep("Norm", 13)),
-    cost_mean = c(rep(0, 16)),
-    cost_sd = c(rep(0, 16)),
-    cost_lower = c(rep(0, 16)),
-    cost_upper = c(rep(1, 16)),
-    metacommunity_sampling = c(rep("Power", 5), "Lognormal", "Default", rep("Power", 9)),
-    power_alpha = rep(0.01, 16),
-    lognormal_mean = rep(8, 16),
-    lognormal_sd = rep(8, 16),
-    response = c(rep("type III", 9), "type I", "type II", rep("type III", 5))
+                          "f5_invader_suppression","f6_target_resource"),
+    ruggedness = c(NA, 0.8, rep(NA, 10), 0.8, rep(NA, 2)),
+    rich_medium = c(rep(T, 8), F, rep(T, 6)),
+    n_inoc = c(rep(10^6, 8), 10^3, rep(10^6, 6)),
+    n_migration = c(rep(10^6, 8), 10^3, rep(10^6, 6)),
+    l = c(rep(0, 7), 0.5, 0.5, rep(0, 6)),
+    dilution = c(rep(0.001, 8), 0.001, rep(0.001, 6)),
+    n_propagation = c(rep(1, 8), 20, rep(1, 6)),
+    phi_distribution = c(rep("Norm", 2), "Uniform", "Norm", "Uniform", rep("Norm", 10)),
+    phi_mean = c(rep(0,3), 1, rep(0, 11)),
+    phi_sd = c(rep(1, 15)),
+    phi_lower = c(rep(0, 15)),
+    phi_upper = c(rep(1, 15)),
+    cost_distribution = c(rep("Norm", 2), "Uniform", rep("Norm", 12)),
+    cost_mean = c(rep(0, 15)),
+    cost_sd = c(rep(0, 15)),
+    cost_lower = c(rep(0, 15)),
+    cost_upper = c(rep(1, 15)),
+    metacommunity_sampling = c(rep("Power", 5), "Lognormal", "Default", rep("Power", 8)),
+    power_alpha = rep(0.01, 15),
+    lognormal_mean = rep(8, 15),
+    lognormal_sd = rep(8, 15),
+    response = c(rep("type III", 8), "type III", "type I", "type II", rep("type III", 4)),
+    sigma_max = c(rep(1,8), 1, rep(1, 6)) # default = 1. sigma max for functional response
 )
+#list_treatments <- filter(list_treatments, exp_id == "f1d_additive_medium2")
+
 make_input_csv <- function(...){
     args = list(...)
 
@@ -418,12 +422,12 @@ input_robustness_wrapper <- function(i, treatment) {
     list_protocols <- c("iteration_simple_screening", paste0("iteration_", c(3,5)))
     target_communities <- c("selected_community", "synthetic_community")
     list_perturbations <- c("migration", "migration2", "bottleneck", "resource_shift", "knock_out")
-    make_input_perturbation <- function (data_directory, sf, protocol, n_directed_selected, target_community, perturbation, seed) {
+    make_input_perturbation <- function (data_directory, sf, id, protocol, n_directed_selected, target_community, perturbation, seed) {
         # Naming convention
         if (grepl("screen", protocol)) {
-            overwrite_plate <- paste0(data_directory, "iteration_", sf, "/", sf, "-", protocol, "-", seed, "-", target_community, ".txt")
+            overwrite_plate <- paste0(data_directory, "iteration_", id, "/", id, "-", protocol, "-", seed, "-", target_community, ".txt")
         } else {
-            overwrite_plate <- paste0(data_directory, "iteration_", sf, "/", sf, "-", protocol, "_round", n_directed_selected+3, "-", seed, "-", target_community, ".txt")
+            overwrite_plate <- paste0(data_directory, "iteration_", id, "/", id, "-", protocol, "_round", n_directed_selected+3, "-", seed, "-", target_community, ".txt")
         }
         exp_id <- paste0(sf, "-", protocol,"-", seed, "-", target_community, "-", perturbation)
 
@@ -459,6 +463,7 @@ input_robustness_wrapper <- function(i, treatment) {
                 temp <- make_input_perturbation(
                     data_directory = data_directory,
                     sf = selected_function,
+                    id = treatment$exp_id,
                     protocol = list_protocols[j],
                     n_directed_selected = n_directed_selected,
                     target_community = target_communities[tc],
@@ -508,15 +513,15 @@ for (k in 1:nrow(list_treatments)) {
         input_independent$n_wells <- 10
         input_iteration$n_wells <- 10
         input_robustness$n_wells <- 10
-        input_independent$rn <- 20
-        input_iteration$rn <- 20
-        input_robustness$rn <- 20
-        #input_independent$S <- 10
-        #input_iteration$S <- 10
-        #input_robustness$S <- 10
-        input_independent$sn <- 100
-        input_iteration$sn <- 100
-        input_robustness$sn <- 100
+        # input_independent$rn <- 20
+        # input_iteration$rn <- 20
+        # input_robustness$rn <- 20
+        # input_independent$S <- 10
+        # input_iteration$S <- 10
+        # input_robustness$S <- 10
+        # input_independent$sn <- 100
+        # input_iteration$sn <- 100
+        # input_robustness$sn <- 100
 
     }
 

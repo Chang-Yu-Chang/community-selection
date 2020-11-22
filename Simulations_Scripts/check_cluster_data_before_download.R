@@ -42,7 +42,7 @@ for (i in 1:length(mapping_files)) {
                         paste0(mapping_files[i], ".csv"),
                         simulation_file_directory = paste0(simulation_file_directory, sub("input_", "", mapping_files[i]), "/"))
 }
-
+cat("\n")
 
 
 
