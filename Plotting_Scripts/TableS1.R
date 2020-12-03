@@ -56,9 +56,9 @@ for (k in 1:12) {
 
 ft1 <- ft1 %>% 
     merge_v(j = "Strategy") %>% 
-    valign(j = 1:12, valign = "top", part = "all") %>% 
-    align(j = 1:12, align = "left", part = "all") %>% 
-    width(j = 3:12, width = 4)
+    valign(j = 1:13, valign = "top", part = "all") %>% 
+    align(j = 1:13, align = "left", part = "all") %>% 
+    width(j = 3:13, width = 4)
 
 # Add foodnote
 ft1 <- ft1 %>% 
@@ -67,7 +67,10 @@ ft1 <- ft1 %>%
         ref_symbols = c("a"), part = "header") %>%
     footnote(i = 1, j = "Random selection matrix",
         value = as_paragraph("In our simulation, a new random selection matrix for a protocol is drawn every time it needs to transfer from parents to offsprings, so they differ from generation to generation."),
-        ref_symbols = c("a"), part = "header")
+        ref_symbols = c("b"), part = "header") %>% 
+    footnote(i = c(5,9,10), j = c("Selection matrix", "Random selection matrix"),
+        value = as_paragraph("The red lines indicate the division of multiple parallel sublines."),
+        ref_symbols = c("c"), part = "body")
 
 save_as_image(ft1, "../Plots/TableS1.png")
 

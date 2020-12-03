@@ -4,11 +4,12 @@ suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
 test_small_set <- F
+test_small_pool <- F
 pool_csv <- T
 
 seeds = 1:20 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
-#data_directory = "~/Desktop/Lab/community-selection/Data/test/"
+#data_directory = "/Users/chang-yu/Desktop/Lab/community-selection/Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_treatments <- tibble(
@@ -42,7 +43,7 @@ list_treatments <- tibble(
     response = c(rep("type III", 8), "type III", "type I", "type II", rep("type III", 4)),
     sigma_max = c(rep(1,8), 1, rep(1, 6)) # default = 1. sigma max for functional response
 )
-#list_treatments <- filter(list_treatments, exp_id == "f1d_additive_medium2")
+#list_treatments <- filter(list_treatments, selected_function == "f5_invader_suppression")
 
 make_input_csv <- function(...){
     args = list(...)
@@ -97,6 +98,9 @@ make_input_csv <- function(...){
             cost_sd = 0, # Sd fraction of cost feeded into a gamma distribution. cost_sd = 0 if cost_mean = 0, cost_sd= 0.01 if cost_mean >0
             cost_lower = 0, # Lower bound for cost if cost_distribution="Uniform"
             cost_upper = 1, # Upper bound for cost if cost_distribution="Uniform"
+            invader_index =  2,
+            invader_sampling = "Gamma",
+            invader_strength = 10,
             target_resource = NA, # Target resource production when selected_function=f6_target_resourece
 
             #Paramaters for Directed Selection (for directed selection protocols that can't be coded up in experiment paramaters)
@@ -340,12 +344,12 @@ input_iteration_wrapper <- function (i, treatment) {
     n_directed_selected <- 20 # Total round of directed selection; default = 20
     n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
     list_seq_ds <- list(
-        c("bottleneck", "bottleneck"),
+        c("bottleneck", "bottleneck"), #1
         c("migration", "migration"),
+        c("bottleneck-and-migration"), 
         c("bottleneck-and-migration"),
-        c("bottleneck-and-migration"),
-        c("bottleneck-and-migration"),
-        c("bottleneck-and-migration"),
+        c("bottleneck-and-migration"), #5
+        c("bottleneck-and-migration"), #6
         c("bottleneck-and-migration")
     ) %>%
         # Repeat them to the length of number of directed selection rounds
@@ -513,16 +517,17 @@ for (k in 1:nrow(list_treatments)) {
         input_independent$n_wells <- 10
         input_iteration$n_wells <- 10
         input_robustness$n_wells <- 10
+        if (test_small_pool) {
+            input_independent$S <- 10
+            input_iteration$S <- 10
+            input_robustness$S <- 10
+            input_independent$sn <- 100
+            input_iteration$sn <- 100
+            input_robustness$sn <- 100
+        }
         # input_independent$rn <- 20
         # input_iteration$rn <- 20
         # input_robustness$rn <- 20
-        # input_independent$S <- 10
-        # input_iteration$S <- 10
-        # input_robustness$S <- 10
-        # input_independent$sn <- 100
-        # input_iteration$sn <- 100
-        # input_robustness$sn <- 100
-
     }
 
     input_independent$save_composition <- FALSE

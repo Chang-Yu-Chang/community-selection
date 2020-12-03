@@ -137,7 +137,7 @@ sbatch batch_iteration_$1.sh
 
 # Make synthetic community
 source activate py37_dev
-cd ../iteration_$1
+cd  ~/project/community-selection/wrapper/iteration_$1
 make_synthetic_communities input_iteration_$1.csv
 conda deactivate
 
