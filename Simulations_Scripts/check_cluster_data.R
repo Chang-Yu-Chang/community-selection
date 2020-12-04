@@ -21,7 +21,7 @@ if (all(file_existence)) {
     cat("\n", sum(!file_existence)," files are missing\n")
     cat(file_names[!file_existence], sep = "\n")
     file_open <- file(joblist_name)
-    writeLines(paste0("ecoprospector ", mapping_file_names, " ", which(!file_existence)-1), con = file_open)
+    writeLines(paste0("source activate py37_dev; ecoprospector ", mapping_file_names, " ", which(!file_existence)-1), con = file_open)
     close(file_open)
     cat("\nCreated", joblist_name)
 }

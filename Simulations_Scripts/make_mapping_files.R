@@ -40,6 +40,7 @@ list_treatments <- tibble(
     lognormal_sd = rep(8, 16),
     response = c(rep("type III", 9), "type I", "type II", rep("type III", 5))
 )
+
 make_input_csv <- function(...){
     args = list(...)
 
