@@ -4,7 +4,7 @@ library(data.table)
 library(cowplot)
 
 # Read protocols
-sm <- fread("../data/TableS1_matrix_data.txt") %>% mutate(Pipetting = factor(Pipetting)) %>% as_tibble
+sm <- fread("../Data/Tables/TableS1_matrix_data.txt") %>% mutate(Pipetting = factor(Pipetting)) %>% as_tibble
 sm$Col <- 25-sm$Col # So rank 1st = the one with highest function
 
 # Panel A. Identity matrix
@@ -27,12 +27,14 @@ plot_selection_matrix <- function(sm, show_label = FALSE) {
 }
 
 p_A <- plot_selection_matrix(sm_eye, show_label = T) + 
-    theme(legend.position = "bottom") + 
-    ggtitle("No-selection (identity matrix)")
+    theme(legend.position = "bottom") +
+    guides(fill = F)
+    #ggtitle("No-selection (identity matrix)")
 
 
 # Panel B. Example of propagule, migran-pool strategies
 p_propagule <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "select_top25percent"))
+#p_migrant <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "select_top25percent_control"))
 p_migrant <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "pool_top25percent"))
 p_propagule_subline <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "Raynaud2019a")) + 
     geom_hline(yintercept = seq(0.5, 23.5, by = 8), color = "red") + 
@@ -56,6 +58,7 @@ p_C <- ggdraw() + draw_image("../Plots/Cartoons/FigS11C.png")
 
 #
 p_S13 <- plot_grid(p_top_row, p_C, ncol = 1, labels = c("", "C"))
-ggsave("../Plots/FigS11.png", p_S13, width = 12, height = 12)
-
+#ggsave("../Plots/FigS11.png", p_S13, width = 12, height = 12)
+#ggsave("../Plots/Cartoons/FigS11A.pdf", p_A, width = 4, height = 4)
+#ggsave("../Plots/Cartoons/FigS11.pdf", p_S13, width = 12, height = 12)
 
