@@ -3,11 +3,11 @@
 suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
-test_small_set <- F
-test_small_pool <- F
+test_small_set <- T
+test_small_pool <- T
 pool_csv <- T
 
-seeds = 1:20 # Random seed. Default 1:100
+seeds = 1:2 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
 #data_directory = "/Users/chang-yu/Desktop/Lab/community-selection/Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
@@ -21,8 +21,8 @@ list_treatments <- tibble(
                           "f5_invader_suppression","f6_target_resource"),
     ruggedness = c(NA, 0.8, rep(NA, 10), 0.8, rep(NA, 2)),
     rich_medium = c(rep(T, 8), F, rep(T, 6)),
-    n_inoc = c(rep(10^6, 8), 10^3, rep(10^6, 6)),
-    n_migration = c(rep(10^6, 8), 10^3, rep(10^6, 6)),
+    n_inoc = c(rep(NA, 8), 10^3, rep(NA, 6)),
+    #n_migration = c(rep(NA, 8), 10^3, rep(NA, 6)),
     l = c(rep(0, 7), 0.5, 0.5, rep(0, 6)),
     dilution = c(rep(0.001, 8), 0.001, rep(0.001, 6)),
     n_propagation = c(rep(1, 8), 20, rep(1, 6)),
@@ -334,8 +334,6 @@ input_independent_wrapper <- function (i, treatment) {
     for (j in 3:ncol(treatment)) {
         df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
     }
-    # df$cost_mean <- as.character(treatment$cost_mean)
-    # df$cost_sd <- as.character(treatment$cost_sd)
     df[is.na(df)] <- "NA"
     return(df)
 }
@@ -412,11 +410,15 @@ input_iteration_wrapper <- function (i, treatment) {
     df$selected_function <- selected_function
 
     for (j in 3:ncol(treatment)) {
-        df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
+        if (!names(treatment)[j] %in% c("n_migration")) {
+            df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
+        }
     }
-    # df$cost_mean <- as.character(treatment$cost_mean)
-    # df$cost_sd <- as.character(treatment$cost_sd)
     df[is.na(df)] <- "NA"
+    
+    # Remove iteration 2, 3, 4
+    df <- filter(df, grepl("iteration_[1567]", exp_id))
+    
     return(df)
 }
 input_robustness_wrapper <- function(i, treatment) {
@@ -495,6 +497,7 @@ input_iteration_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatm
 input_robustness_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
 
 for (k in 1:nrow(list_treatments)) {
+    k=9
     cat("\nMaking csv for", list_treatments$exp_id[k], "\n")
 
     input_independent_list[[k]][[1]] <- input_independent_wrapper(i = 1, treatment = list_treatments[k,])
