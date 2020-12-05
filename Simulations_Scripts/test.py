@@ -26,7 +26,7 @@ assumptions.update({
     # "n_transfer": 5,
     # "n_transfer_selection": 5,
     # "invader_index": 2,
-    # "invader_sampling": "Gamma",
+    "invader_sampling": "Binary_Gamma",
     # "invader_strength": 10,
     # "somerandomshit": None 
     })
@@ -37,6 +37,7 @@ assumptions_invader.update({"sampling": assumptions["invader_sampling"]})
 params = MakeParams(assumptions) 
 params_invader = MakeParams(assumptions_invader)
 params["c"].iloc[assumptions["invader_index"],:] = params_invader["c"].iloc[assumptions["invader_index"],:] * assumptions["invader_strength"]
+params["c"].iloc[assumptions["invader_index"],:]
 params["c"].sum(1)
 
 # print("\nDraw per-capita function and cost")

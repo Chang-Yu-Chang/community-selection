@@ -3,13 +3,14 @@
 suppressWarnings(suppressMessages(library(tidyverse)))
 suppressWarnings(suppressMessages(library(data.table)))
 
-test_small_set <- T
-test_small_pool <- T
+test_small_set <- F
+test_small_pool <- F
 pool_csv <- T
 
-seeds = 1:2 # Random seed. Default 1:100
+seeds = 1:20 # Random seed. Default 1:100
 cat("\nTotal seeds are = ", seeds, "\n")
 #data_directory = "/Users/chang-yu/Desktop/Lab/community-selection/Data/test/"
+#data_directory = "/Users/cychang/Desktop/Lab/community-selection/Data/test/"
 data_directory = "/home/cc2553/project/community-selection/data/"
 mapping_file_directory = "../Data/Mapping_Files/"
 list_treatments <- tibble(
@@ -21,7 +22,7 @@ list_treatments <- tibble(
                           "f5_invader_suppression","f6_target_resource"),
     ruggedness = c(NA, 0.8, rep(NA, 10), 0.8, rep(NA, 2)),
     rich_medium = c(rep(T, 8), F, rep(T, 6)),
-    n_inoc = c(rep(NA, 8), 10^3, rep(NA, 6)),
+    n_inoc = c(rep(10^6, 8), 10^3, rep(10^6, 6)),
     #n_migration = c(rep(NA, 8), 10^3, rep(NA, 6)),
     l = c(rep(0, 7), 0.5, 0.5, rep(0, 6)),
     dilution = c(rep(0.001, 8), 0.001, rep(0.001, 6)),
@@ -37,6 +38,7 @@ list_treatments <- tibble(
     cost_lower = c(rep(0, 15)),
     cost_upper = c(rep(1, 15)),
     metacommunity_sampling = c(rep("Power", 5), "Lognormal", "Default", rep("Power", 8)),
+    S = c(rep(NA, 6), 225, rep(NA, 8)),
     power_alpha = rep(0.01, 15),
     lognormal_mean = rep(8, 15),
     lognormal_sd = rep(8, 15),
@@ -65,9 +67,9 @@ make_input_csv <- function(...){
             save_composition = T, # Save Composition Data
             save_plate = F, #Save initial plate
             function_lograte = 1, #How often do you save the function in transfers
-            composition_lograte = 20, #How often do you save the compoistion in transfers
+            composition_lograte = 20, #How often do you save the composition in transfers
 
-            #Experiment Paramaters (applies to for all protocols)
+            #Experiment Parameters (applies to for all protocols)
 
             scale = 1000000, # Number of cells when N_i = 1
             n_inoc = 1000000, # Number of cells sampled from the regional species at start
@@ -84,7 +86,7 @@ make_input_csv <- function(...){
             lognormal_sd = NA, # Default = 8
 
 
-            #Paramaters for community function, #paramaters that determine properties of function
+            #Parameters for community function, #parameters that determine properties of function
             phi_distribution = "Norm", # {"Norm", "Uniform"}
             phi_mean = 0, #
             phi_sd = 1, # Standard deviation for drawing specifc speices/interaction function
@@ -418,7 +420,7 @@ input_iteration_wrapper <- function (i, treatment) {
     df[is.na(df)] <- "NA"
 
     # Remove iteration 2, 3, 4
-    df <- filter(df, grepl("iteration_[1567]", exp_id))
+    df <- filter(df, grepl("iteration_[1567]", exp_id) | grepl("screen", exp_id))
 
     return(df)
 }
@@ -426,7 +428,7 @@ input_robustness_wrapper <- function(i, treatment) {
     selected_function = treatment$selected_function
     n_directed_selected <- 20 # Total round of directed selection; default = 20
     n_transfer_round <- 20 # Number of transfer between two selection rounds; default = 20
-    list_protocols <- c("iteration_simple_screening", paste0("iteration_", c(3,5)))
+    list_protocols <- c("iteration_simple_screening", paste0("iteration_", c(5)))
     target_communities <- c("selected_community", "synthetic_community")
     list_perturbations <- c("migration", "migration2", "bottleneck", "resource_shift", "knock_out")
     make_input_perturbation <- function (data_directory, sf, id, protocol, n_directed_selected, target_community, perturbation, seed) {
@@ -498,7 +500,6 @@ input_iteration_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatm
 input_robustness_list <- rep(list(rep(list(NA), length(seeds))), nrow(list_treatments))
 
 for (k in 1:nrow(list_treatments)) {
-    k=9
     cat("\nMaking csv for", list_treatments$exp_id[k], "\n")
 
     input_independent_list[[k]][[1]] <- input_independent_wrapper(i = 1, treatment = list_treatments[k,])
