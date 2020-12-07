@@ -19,6 +19,7 @@ iteration_rounds = range(1, 24)
 cluster_envir_string = "source activate py37_dev; "
 commandline_tool = "ecoprospector "
 list_protocols = ["simple_screening"] + ["iteration_"+str(i) for i in range(1,8)]
+#list_protocols = ["simple_screening"] + ["iteration_"+str(i) for i in range(]
 
 # Read input csv
 with open(input_csv,"r") as f:
@@ -125,7 +126,7 @@ elif simulation_job_type == "robustness":
         counter += 1
     
         # Group 10 simulations into one job; if the number of expeirment cannot be fully divided by 10, also print the residue
-        if counter == 2 or i == (total_experiments-1): 
+        if counter == 10 or i == (total_experiments-1): 
             counter = 0
             line_temp += "\n"
             fout.write(line_temp)

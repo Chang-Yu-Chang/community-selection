@@ -115,7 +115,7 @@ make_input_csv <- function(...){
             bottleneck = F, #If True perform bottleneck pertubations
             bottleneck_size = NA, #Magnitude of bottleneck. If not set it default to dilution
             migration = F, #If true perform migration pertubations
-            n_migration = NA, # Number of cells to migration in the directed selection
+            n_migration = 1e6, # Number of cells to migration in the directed selection
             s_migration = NA, # Number of species to migrate. If s_migration is NA defaults to power law migration (so this is normal).
             coalescence = F, #If true perform coalescence pertubation
             frac_coalescence = NA, # fraction of coalesced community that is champion. Defaults to 0.5 if NA
@@ -442,7 +442,7 @@ input_robustness_wrapper <- function(i, treatment) {
 
         #
         if (perturbation == "migration") {
-            temp <- make_input_csv(protocol = "directed_selection", migration = T)
+            temp <- make_input_csv(protocol = "directed_selection", migration = T, n_migration = 1e6)
         } else if (perturbation == "migration2") {
             temp <- make_input_csv(protocol = "directed_selection", migration = T, n_migration = 1e2)
         } else if (perturbation == "bottleneck") {
@@ -489,8 +489,6 @@ input_robustness_wrapper <- function(i, treatment) {
     for (j in 3:ncol(treatment)) {
         df[,names(treatment)[j]] = treatment[,names(treatment)[j]]
     }
-    # df$cost_mean <- as.character(treatment$cost_mean)
-    # df$cost_sd <- as.character(treatment$cost_sd)
     df[is.na(df)] <- "NA"
     return(df)
 }

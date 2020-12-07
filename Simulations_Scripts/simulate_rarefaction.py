@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 from community_selection.usertools import *
-input_csv = "/Users/cychang/Desktop/Lab/community-selection/Data/Mapping_Files/input_independent_f1_additive.csv"
+input_csv = "/Users/chang-yu/Desktop/Lab/community-selection/Data/Mapping_Files/input_independent_f1_additive.csv"
 row_number = 0
 
 assumptions = make_assumptions(input_csv, row_number)
 assumptions["metacommunity_sampling"] = "Default"
+assumptions["S"] = 225
 params, params_simulation , params_algorithm, plate_default = prepare_experiment(assumptions)
 plate_default.N.to_csv("../Data/test/plate_default.txt", index = False)
 

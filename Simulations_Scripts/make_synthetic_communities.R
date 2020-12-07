@@ -13,7 +13,7 @@ data_directory <- unique(df_input$output_dir)
 name_prefix <- strsplit(data_directory, split = "/")[[1]] %>% `[`(length(.)) %>% gsub("(iteration_)|(independent_)|(robustness_)", "", .)
 
 for (seed in seeds){
-    for (protocol in c("iteration_simple_screening", paste0("iteration_", 1:7))){
+    for (protocol in c("iteration_simple_screening", paste0("iteration_", c(1,5,6)))){
         cat("seed =", seed, "\t", protocol, "\n")
         
         # Overall settings
