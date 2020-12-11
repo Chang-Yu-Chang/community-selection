@@ -13,6 +13,7 @@ t2 <- c(
     "wα", "Energy content of resource α (energy/mass)", 1,
     "lα", "Leakage fraction for resource α (unitless)", 0,
     "mi", "Minimal energy uptake for maintenance of species i (energy/time)", 0,
+    "nα", "Functional response of utilization on resource α", NA,
     "n", "Hill coefficient for functional response (unitless)", 2,
     "σmax", "Maximum input flux (mass/time)", 1
 ) %>%
@@ -35,8 +36,9 @@ ft2 <- flextable(t2) %>%
     compose(i = 6, j = "Parameter", value = as_paragraph("w", as_sub("α"))) %>% 
     compose(i = 7, j = "Parameter", value = as_paragraph("l", as_sub("α"))) %>% 
     compose(i = 8, j = "Parameter", value = as_paragraph("m", as_sub("i"))) %>% 
-    compose(i = 9, j = "Parameter", value = as_paragraph("n", as_sub(""))) %>% 
-    compose(i = 10, j = "Parameter", value = as_paragraph("σ", as_sub("max"))) %>% 
+    compose(i = 9, j = "Parameter", value = as_paragraph("σ", as_sub("α"))) %>%
+    compose(i = 10, j = "Parameter", value = as_paragraph("n", as_sub(""))) %>% 
+    compose(i = 11, j = "Parameter", value = as_paragraph("σ", as_sub("max"))) %>% 
     # Footnote
     footnote(i = 1:2, j = "Value", part = "body",
         value = as_paragraph(c("Values change with consumer-resouce dynamics.", "Values change with consumer-resouce dynamics.")),
@@ -45,8 +47,11 @@ ft2 <- flextable(t2) %>%
         value = as_paragraph(c("Values are assigned randomly to each species during simulation setup.", "Values are assigned randomly to each species during simulation setup.")),
         ref_symbols = c("b", "b"), inline = F) %>% 
     footnote(i = 4, j = "Value", part = "body",
-        value = as_paragraph("The values in D", as_sub("αβ"), " do not matter if l", as_sub("α"), " is 0"),
+        value = as_paragraph("The values in D", as_sub("αβ"), " do not matter if l", as_sub("α"), " is 0."),
         ref_symbols = c("c"), inline = F) %>% 
+    footnote(i = 9, j = "Value", part = "body",
+        value = as_paragraph("Depending on type of functional response chosen."),
+        ref_symbols = c("d"), inline = F) %>%
     merge_v(part = "footer")
 
 save_as_image(ft2, "../Plots/TableS2.png")
