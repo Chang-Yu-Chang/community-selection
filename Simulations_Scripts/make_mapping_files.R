@@ -560,6 +560,12 @@ if (pool_csv) {
     fwrite(input_robustness, paste0(mapping_file_directory, "input_robustness.csv"))
 }
 
+# test
+input_independent %>%
+    slice(1:2) %>%
+    fwrite(paste0(mapping_file_directory, "input_test.csv"))
+
+
 # Internal dynamics
 input_internal <- make_input_csv(exp_id = "f1_additive-simple_screening-1-internal", n_wells = 1, n_transfer = 20, n_transfer_selection = 10, composition_lograte = 10)
 input_internal$output_dir <- data_directory

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -131,7 +130,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 .Rproj.user
-=======
+
 # History files
 .Rhistory
 .Rapp.history
@@ -142,6 +141,7 @@ deprecated/*
 *.Rproj
 Data/Mapping_Files/input_test.csv
 Simulations_Scripts/deprecated/*
+Simulations_Scripts/test*
 Plots/Cartoons/*pdf
 documents/*
 Data/test/*
@@ -181,4 +181,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
->>>>>>> a8f5d62d46b271758d7208834f35e5aa510bd3f4
+
