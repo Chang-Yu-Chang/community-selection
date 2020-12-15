@@ -13,7 +13,7 @@ t2 <- c(
     "wα", "Energy content of resource α (energy/mass)", 1,
     "lα", "Leakage fraction for resource α (unitless)", 0,
     "mi", "Minimal energy uptake for maintenance of species i (energy/time)", 0,
-    "nα", "Functional response of utilization on resource α", NA,
+    "σα", "Functional response of utilization on resource α", NA,
     "n", "Hill coefficient for functional response (unitless)", 2,
     "σmax", "Maximum input flux (mass/time)", 1
 ) %>%
