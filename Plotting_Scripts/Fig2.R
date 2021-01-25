@@ -25,7 +25,7 @@ mapping_file = fread('../Data/Mapping_Files/input_independent.csv')
 mapping_file$file = paste('../Data/Raw/',mapping_file$exp_id,'_function.txt',sep='')
 mapping_file = mapping_file[cost_mean==0  & selected_function=='f1_additive',]
 
-A = mapping_file[directed_selection==TRUE & bottleneck == TRUE & bottleneck_size == 1e-5 & protocol == 'directed_selection',]
+A = mapping_file[directed_selection==TRUE & bottleneck == TRUE & bottleneck_size == 1e-4 & protocol == 'directed_selection',]
 A =merge(rbindlist(lapply(A$file,fread)),A)
 A[,rank :=frank(-CommunityPhenotype),by=list(seed,Transfer)]
 top = A[rank==1 & seed==k & Transfer ==20]
@@ -60,7 +60,7 @@ B[,SD_F_Mean := sd(F_Mean),by = list(Popsize_mean)]
 B[,Mean_F_Max := mean(F_Max),by = list(Popsize_mean)]
 B[,SD_F_Max := sd(F_Max),by = list(Popsize_mean)]
 
-C = mapping_file[directed_selection==TRUE & bottleneck == TRUE & bottleneck_size == 1e-5 & protocol == 'directed_selection']
+C = mapping_file[directed_selection==TRUE & bottleneck == TRUE & bottleneck_size == 1e-4 & protocol == 'directed_selection']
 D = mapping_file[directed_selection==TRUE & knock_in == TRUE & knock_in_threshold == 0.95]
 E = mapping_file[directed_selection==TRUE & knock_out == TRUE]
 F = mapping_file[directed_selection==TRUE & migration ==TRUE & is.na(s_migration)]

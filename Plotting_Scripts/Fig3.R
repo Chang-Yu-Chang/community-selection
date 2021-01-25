@@ -132,7 +132,7 @@ t2$Treatment = factor(t2$Treatment,levels=c('Bottleneck','Migration','Both'))
 t2 = t2[Well == 'W0' & Transfer ==20]
 t2_control = t2_control[Well == 'W0' & Transfer ==40]
 t2$Q = t2$Maximum - rep(t2_control$Maximum,3)
-my_comparisons <- list( c("Bottleneck", "Migration"), c("Bottleneck", "Both"), c("Migration", "Both") )
+my_comparisons <- list( c("Bottleneck", "Both"), c("Migration", "Both") )
 
 p5 <- ggboxplot(t2,x='Treatment',y='Q',col='Treatment',palette = "dark2",
                 add = "jitter",jitter.height=0,legend='right',shape=1,outlier.size=1,outlier.colour='white') + 

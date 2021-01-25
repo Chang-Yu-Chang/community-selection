@@ -45,7 +45,7 @@ list_treatments <- tibble(
     response = c(rep("type III", 8), "type III", "type I", "type II", rep("type III", 4)),
     sigma_max = c(rep(1,8), 1, rep(1, 6)) # default = 1. sigma max for functional response
 )
-#list_treatments <- filter(list_treatments, selected_function == "f5_invader_suppression")
+list_treatments <- filter(list_treatments, selected_function == "f1_additive")
 
 
 make_input_csv <- function(...){
@@ -93,10 +93,10 @@ make_input_csv <- function(...){
             phi_lower = 0,
             phi_upper = 1,
             ruggedness = 0.8, # (1-ruggedness) percent of function are set to 0
-            function_ratio = 1, # Scaling factor between species- and interaction-specific function variances
+            #function_ratio = 1, # Scaling factor between species- and interaction-specific function variances
             binary_threshold = 1, #Threshold for binary functions
             g0 = 1, # The baseline conversion factor of biomass per energy
-            cost_distribution = "Norm", # {"Norm", "Uniform"}
+            cost_distribution = "Gamma", # {"Gamma", "Uniform"}
             cost_mean = 0, # Mean fraction of cost feeded into a gamma distribution. Suggested up to 0.05
             cost_sd = 0, # Sd fraction of cost feeded into a gamma distribution. cost_sd = 0 if cost_mean = 0, cost_sd= 0.01 if cost_mean >0
             cost_lower = 0, # Lower bound for cost if cost_distribution="Uniform"
@@ -146,7 +146,7 @@ make_input_csv <- function(...){
             g = NA, #energy to biomass conversion
             w = NA, #resource energy value
             l = 0, # Leakage fraction
-            m = 0, # Minimal resurce uptake; mortality
+            m = 0, # Minimal resource uptake; mortality
             n = NA, #hill coefficient when n= 1 response is type 2
             response = "type III", #functional response (see dRdt)
             sigma_max = NA, # default = 1. sigma max for functional response
@@ -560,10 +560,6 @@ if (pool_csv) {
     fwrite(input_robustness, paste0(mapping_file_directory, "input_robustness.csv"))
 }
 
-# test
-input_independent %>%
-    slice(1:2) %>%
-    fwrite(paste0(mapping_file_directory, "input_test.csv"))
 
 
 # Internal dynamics

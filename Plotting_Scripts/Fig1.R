@@ -113,3 +113,7 @@ for(k in unique(df_b$protocol)){
   p_mean = c(p_mean,t.test(df_b[protocol==k]$Performance_Mean)$p.value)
   p_max = c(p_max,t.test(df_b[protocol==k]$Performance_Max)$p.value)
 }
+
+#Just measuring richness etc
+t = mapping_file[mapping_file$protocol == 'simple_screening' & monoculture==FALSE]
+t = merge(rbindlist(lapply(t$file,fread)),t)

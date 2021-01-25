@@ -1,64 +1,31 @@
-#' Selection matrix 
-library(tidyverse)
+rm(list=ls())
 library(data.table)
-library(cowplot)
+library(ggplot2)
+library(vegan)
+library(MASS)
+library(fitdistrplus)
+library(ggpubr)
 
-# Read protocols
-sm <- fread("../Data/Tables/TableS1_matrix_data.txt") %>% mutate(Pipetting = factor(Pipetting)) %>% as_tibble
-sm$Col <- 25-sm$Col # So rank 1st = the one with highest function
+plate_power <- t(round(fread("../Data/Rarefaction_Data/plate_power.txt")[,1:11]*1e+6))
+plate_lognormal <- t(round(fread("../Data/Rarefaction_Data/plate_lognormal.txt")[,1:11]*1e+6))
+plate_default <- t(round(fread("../Data/Rarefaction_Data/plate_default.txt")[,1:11]*1e+6))
+samples = fread('../Data/Rarefaction_Data/metadata.csv')
+samples = samples[Transfer==0]
+otu_table = fread('../Data/Rarefaction_Data/otu_table.csv')
+otu_table = t(as.matrix(otu_table[,which(colnames(otu_table) %in% samples$ID),with=FALSE]))
+otu_table = otu_table[,colSums(otu_table) >0]
+sample_sizes =round(10^seq(1,6,by=0.1))
+experiment_curve = sapply(sample_sizes,function(x) as.vector(rarefy(otu_table,x)))
+default_curve = sapply(sample_sizes,function(x) as.vector(rarefy(plate_default,x)))
+lognormal_curve = sapply(sample_sizes,function(x) as.vector(rarefy(plate_lognormal,x)))
+power_curve = sapply(sample_sizes,function(x) as.vector(rarefy(plate_power,x)))
 
-# Panel A. Identity matrix
-sm_eye <- tibble(Row = rep(1:24, 24), Col = rep(1:24, each = 24), Pipetting = 0, SelectionAlgrithm = "identity", Protocol = "identity")
-sm_eye$Pipetting[(sm_eye$Row==sm_eye$Col)] <- 1 
-d = 0.001 # Dilution factor
-sm_eye$Pipetting <- factor(sm_eye$Pipetting * d)
+plot_df = data.frame(N = rep(sample_sizes,4),
+          Treatment = rep(c('Experimental Data','Uniform Abundance','Power Distribution','Lognormal Distribution'),each=length(sample_sizes)) )
+plot_df = cbind(plot_df,rbind(t(experiment_curve),t(default_curve),t(power_curve),t(lognormal_curve)))
+plot_df = melt(plot_df, id.vars=c("N", "Treatment"),value.name='Richness',variable.name = 'Community')
 
-plot_selection_matrix <- function(sm, show_label = FALSE) {
-    ggplot(sm, aes(x = Col, y = Row, fill = Pipetting)) +
-        geom_tile(color = "black") +
-        scale_fill_manual(values = c("black", "white")) +
-        scale_x_continuous(expand = c(0,0), breaks = 1:24, position = "top") +
-        scale_y_reverse(expand = c(0,0), breaks = 1:24) +
-        theme(legend.title = element_blank()) +
-        {if (show_label == FALSE) {theme_void() + theme(legend.position = "none", axis.title = element_blank(), axis.text = element_blank())}} +
-        panel_border(size = 1, color = 1) +
-        labs(x = "Rank of Parent Community (v)", y = "Offspring Community (u)") +
-        NULL 
-}
-
-p_A <- plot_selection_matrix(sm_eye, show_label = T) + 
-    theme(legend.position = "bottom") +
-    guides(fill = F)
-    #ggtitle("No-selection (identity matrix)")
-
-
-# Panel B. Example of propagule, migran-pool strategies
-p_propagule <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "select_top25percent"))
-#p_migrant <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "select_top25percent_control"))
-p_migrant <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "pool_top25percent"))
-p_propagule_subline <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "Raynaud2019a")) + 
-    geom_hline(yintercept = seq(0.5, 23.5, by = 8), color = "red") + 
-    geom_vline(xintercept = seq(0.5, 23.5, by = 8), color = "red")
-p_migrant_subline <- plot_selection_matrix(filter(sm, SelectionAlgorithm == "Raynaud2019b")) +
-    geom_hline(yintercept = seq(0.5, 23.5, by = 8), color = "red") + 
-    geom_vline(xintercept = seq(0.5, 23.5, by = 8), color = "red")
-
-p_B <- plot_grid(p_propagule, p_migrant, p_propagule_subline, p_migrant_subline,
-    labels = c("Propagule", "Migrant-pool", "Propagule with sublines", "Migrant-pool with sublines"), 
-    nrow = 2, scale = c(.7, .7, .7, .7), align = "hv", axis = "tb", label_fontface = "plain", label_x = c(0,-.03,-.2, -.23))
-
-p_top_row <- plot_grid(p_A, p_B, nrow = 1, labels = c("A", "B"), scale = c(.9, 1))
-
-# Panel C. Example of protocol with propagule
-p_migrant <- plot_selection_matrix(filter(sm, Protocol == "Swenson2000a"))
-p_migrant_control <- plot_selection_matrix(filter(sm, Protocol == "Swenson2000a_control"))
-p_eye <- plot_selection_matrix(sm_eye)
-p_C <- ggdraw() + draw_image("../Plots/Cartoons/FigS11C.png")
-
-
-#
-p_S13 <- plot_grid(p_top_row, p_C, ncol = 1, labels = c("", "C"))
-#ggsave("../Plots/FigS11.png", p_S13, width = 12, height = 12)
-#ggsave("../Plots/Cartoons/FigS11A.pdf", p_A, width = 4, height = 4)
-#ggsave("../Plots/Cartoons/FigS11.pdf", p_S13, width = 12, height = 12)
-
+plot_df$Richness = as.numeric(plot_df$Richness)
+p1 <- ggplot(plot_df,aes(x=N,y=Richness,col=Community)) + geom_line() + facet_wrap(~Treatment) + guides(col=FALSE) +
+  theme_pubr() + scale_y_log10() + scale_x_log10() + labs(x = 'Number of Individuals', y = 'Number of Species')
+ggsave('../Plots/FigS11.png',p1)
